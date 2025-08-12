@@ -1,5 +1,4 @@
-//import MenuSystem from './MenuSystem.js';
-import MenuSystem from './MenuSystem_2.js';
+import MenuSystem from './MenuSystem.js';
 import UIManager from './UIManager.js';
 import InventoryManager from './InventoryManager.js';
 
