@@ -11,77 +11,77 @@ export default class MenuSystem {
    * @param {number} [config.verticalPadding=5]
    * @param {Object} [config.renderers={}] - custom renderer functions by type
    */
-  constructor(scene, config = {}) {
-    this.scene = scene;
-    this.data = config.data || { parent: [] };
+    constructor(scene, config = {}) {
+        this.scene = scene;
+        this.data = config.data || { parent: [] };
+    
+        this.x = config.x || 50;
+        this.y = config.y || 50;
+        this.width = config.width || 300;
+        this.itemHeight = config.itemHeight || 40;
+        this.contentIndent = (config.contentIndent !== undefined) ? config.contentIndent : 20;
+        this.verticalPadding = config.verticalPadding || 5;
+    
+        this.renderers = Object.assign({
+            default: this.renderDefaultItem
+        }, config.renderers || {});
+    
+        this.expandedParents = new Set();
+        this.container = this.scene.add.container(this.x, this.y);
+    
+        // Manage all item references internally: { key: { elements, data } }
+        this.itemRefs = new Map();
+    
+        this.render();
+    }
 
-    this.x = config.x || 50;
-    this.y = config.y || 50;
-    this.width = config.width || 300;
-    this.itemHeight = config.itemHeight || 40;
-    this.contentIndent = (config.contentIndent !== undefined) ? config.contentIndent : 20;
-    this.verticalPadding = config.verticalPadding || 5;
-
-    this.renderers = Object.assign({
-      default: this.renderDefaultItem
-    }, config.renderers || {});
-
-    this.expandedParents = new Set();
-    this.container = this.scene.add.container(this.x, this.y);
-
-    // Manage all item references internally: { key: { elements, data } }
-    this.itemRefs = new Map();
-
-    this.render();
-  }
-
-render() {
-  this.container.removeAll(true);
-  this.itemRefs.clear();
-
-  let currentY = 0;
-  this.data.parent.forEach(parent => {
-    // Draw parent button
-    const parentBg = this.scene.add.rectangle(0, currentY, this.width, this.itemHeight, 0x0000ff)
-      .setOrigin(0)
-      .setInteractive({ useHandCursor: true });
-
-    const parentText = this.scene.add.text(10, currentY + this.itemHeight / 2, parent.id, {
-      fontSize: '18px',
-      color: '#ffffff'
-    }).setOrigin(0, 0.5);
-
-    this.container.add([parentBg, parentText]);
-
-    parentBg.on('pointerdown', () => {
-      if (this.expandedParents.has(parent.id)) {
-        this.expandedParents.delete(parent.id);
-      } else {
-        this.expandedParents.add(parent.id);
-      }
-      this.render();
-    });
-
-    currentY += this.itemHeight + this.verticalPadding;
-
-    // Only render children if content exists and is an array
-    if (this.expandedParents.has(parent.id) && Array.isArray(parent.content)) {
-      parent.content.forEach(item => {
-        const type = parent.type && this.renderers[parent.type]
-          ? parent.type
-          : "default";
-
-        const rendererFn = this.renderers[type];
-        // Renderers return { key, elements, updateFn }
-        const { key, elements, updateFn } = rendererFn(this.scene, this.container, item, currentY, this, parent.id);
-
-        this.itemRefs.set(key, { elements, updateFn });
-
-        currentY += (this.itemHeight * 1.5) + this.verticalPadding;
+    render() {
+      this.container.removeAll(true);
+      this.itemRefs.clear();
+    
+      let currentY = 0;
+      this.data.parent.forEach(parent => {
+        // Draw parent button
+        const parentBg = this.scene.add.rectangle(0, currentY, this.width, this.itemHeight, 0x0000ff)
+          .setOrigin(0)
+          .setInteractive({ useHandCursor: true });
+    
+        const parentText = this.scene.add.text(10, currentY + this.itemHeight / 2, parent.id, {
+          fontSize: '18px',
+          color: '#ffffff'
+        }).setOrigin(0, 0.5);
+    
+        this.container.add([parentBg, parentText]);
+    
+        parentBg.on('pointerdown', () => {
+          if (this.expandedParents.has(parent.id)) {
+            this.expandedParents.delete(parent.id);
+          } else {
+            this.expandedParents.add(parent.id);
+          }
+          this.render();
+        });
+    
+        currentY += this.itemHeight + this.verticalPadding;
+    
+        // Only render children if content exists and is an array
+        if (this.expandedParents.has(parent.id) && Array.isArray(parent.content)) {
+          parent.content.forEach(item => {
+            const type = parent.type && this.renderers[parent.type]
+              ? parent.type
+              : "default";
+    
+            const rendererFn = this.renderers[type];
+            // Renderers return { key, elements, updateFn }
+            const { key, elements, updateFn } = rendererFn(this.scene, this.container, item, currentY, this, parent.id);
+    
+            this.itemRefs.set(key, { elements, updateFn });
+    
+            currentY += (this.itemHeight * 1.5) + this.verticalPadding;
+          });
+        }
       });
     }
-  });
-}
 
   // Call this when resource changes to update relevant UI items
   updateItem(key) {
@@ -111,16 +111,42 @@ render() {
     return y + menu.itemHeight + menu.verticalPadding;
   }
 
-  addParentMenu(id, type) {
-    if (this.data.parent.find(p => p.id === id)) return;
-    this.data.parent.push({ id, type, content: [] });
-    this.render();
-  }
+    addParentMenu(id, type) {
+        if (this.data.parent.find(p => p.id === id)) return;
+        this.data.parent.push({ id, type, content: [] });
+        this.render();
+    }
 
-  addContentToParent(parentId, contentItem) {
-    const parent = this.data.parent.find(p => p.id === parentId);
-    if (!parent) return;
-    parent.content.push(contentItem);
-    this.render();
-  }
+    addContentToParent(parentId, contentItem) {
+          const parent = this.data.parent.find(p => p.id === parentId);
+          if (!parent) return;
+    
+          // Only add if same id doesn't already exist
+          const content = parent.content.find(p => p.id === contentItem.id);
+          if (content && content.id === contentItem.id) return;
+          
+          parent.content.push(contentItem);
+          this.render();
+    }
+
+    removeContentFromParent(parentId, contentItemId) {
+        const parent = this.data.parent.find(p => p.id === parentId);
+        if (!parent) return;
+        
+        const index = parent.content.findIndex(c => c.id === contentItemId);
+        if (index !== -1) {
+            parent.content.splice(index, 1);
+            this.render();
+        }
+    }
+
+    removeParentMenu(parentId) {
+      const index = this.data.parent.findIndex(p => p.id === parentId);
+      if (index !== -1) {
+        // Remove the parent and its content
+        this.data.parent.splice(index, 1);
+        this.render();
+      }
+    }
+
 }
