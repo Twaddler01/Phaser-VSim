@@ -2,6 +2,14 @@ import MenuSystem from './MenuSystem.js';
 import { gatherRenderer, craftRenderer } from  './contentRenderers.js';
 import UIManager from './UIManager.js';
 import InventoryManager from './InventoryManager.js';
+import { menuData, inventoryData } from './gameData.js';
+import SaveManager from './SaveManager.js';
+
+// Pass the actual arrays to be saved — for menuData pass the `.parent` array directly
+const gameData = {
+  menuData: menuData.parent,
+  inventoryData,
+};
 
 // `000`
 // console.log();
@@ -21,6 +29,9 @@ class MainScene extends Phaser.Scene {
     }
 
     create() {
+        // Autosave data to local storage
+        this.saveManager = new SaveManager(gameData, 'saveState', 5000);
+
         const width = this.game.config.width;
         const height = this.game.config.height;
         // Game area rectangle
@@ -64,12 +75,7 @@ const myMenuSystem = new MenuSystem(this, {
         this.ui = new UIManager(this);
         
         this.menu = new MenuSystem(this, {
-          data: {
-            parent: [
-              { id: 'Gathering', type: 'gather', content: [] },
-              { id: 'Crafting',  type: 'craft',  content: [] }
-            ]
-          },
+          data: menuData,
           renderers: {
             gather: gatherRenderer,
             craft: craftRenderer
@@ -78,15 +84,7 @@ const myMenuSystem = new MenuSystem(this, {
         
         this.inventoryManager = new InventoryManager(this, this.menu);
         
-        this.inventoryManager.init([
-          // Resources
-          { type: 'resource', id: 'wood', title: 'Wood', cnt: 0, required: 1000 },
-          { type: 'resource', id: 'stone', title: 'Stone', cnt: 0, required: 1000 },
-          // Crafts
-          { type: 'crafts', id: 'stone_axe', title: 'Stone Axe', cnt: 0, requirements: { wood: 10, stone: 5 } },
-          { type: 'crafts', id: 'campfire', title: 'Campfire', cnt: 0, requirements: { wood: 5, stone: 2 } },
-          { type: 'crafts', id: 'wooden_spear', title: 'Wooden Spear', cnt: 0, requirements: { wood: 8 } }
-        ]);
+        this.inventoryManager.init(inventoryData);
         
         this.inventoryManager.refreshMenu();
 
