@@ -25,8 +25,9 @@ export const menuData = {
 
 export const inventoryData = [
     // Resources
-    { type: 'resource', id: 'wood', title: 'Wood', cnt: 0, max: 500 },
-    { type: 'resource', id: 'stone', title: 'Stone', cnt: 0, max: 500 },
+    { type: 'resource', id: 'fiber', title: 'Fiber', cnt: 0, max: 500, progress: 0, hps: 5 },
+    { type: 'resource', id: 'wood', title: 'Wood', cnt: 0, max: 500, progress: 0, hps: 10 },
+    { type: 'resource', id: 'stone', title: 'Stone', cnt: 0, max: 500, progress: 0, hps: 15 },
     // Crafts
     { type: 'crafts', id: 'stone_axe', title: 'Stone Axe', cnt: 0, requirements: { wood: 10, stone: 5 } },
     { type: 'crafts', id: 'campfire', title: 'Campfire', cnt: 0, requirements: { wood: 5, stone: 2 } },

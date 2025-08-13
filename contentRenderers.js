@@ -1,31 +1,73 @@
 export const gatherRenderer = (scene, container, item, y, menu, parentId, contentHeight) => {
   const boxHeight = contentHeight || menu.itemHeight;
-  const progress = Math.min(1, item.cnt / item.max);
+  item.progress = item.progress || 0;         // 0 → 1, increments per click
+////
+const clicksPerItem = item.hps || 10; // configurable "clicks to gather 1"
+const gatherGain = 1;
 
-  const bg = scene.add.rectangle(menu.contentIndent, y, menu.width - menu.contentIndent, boxHeight, 0x225522)
-    .setOrigin(0)
-    .setInteractive({ useHandCursor: true });
+  // Background
+  const bg = scene.add.rectangle(
+    menu.contentIndent,
+    y,
+    menu.width - menu.contentIndent,
+    boxHeight,
+    0x225522
+  ).setOrigin(0).setInteractive({ useHandCursor: true });
 
-  const label = scene.add.text(menu.contentIndent + 10, y + boxHeight / 2, `Gather: ${item.title}`, {
-    fontSize: '14px', color: '#fff'
-  }).setOrigin(0, 0.5);
+  // Label
+  const label = scene.add.text(
+    menu.contentIndent + 10,
+    y + boxHeight / 2,
+    `Gather: ${item.title}`,
+    { fontSize: '14px', color: '#fff' }
+  ).setOrigin(0, 0.5);
 
-  container.add([bg, label]);
+  // Progress bar
+  const barWidth = 100;
+  const barHeight = 12;
+  const barStartX = menu.contentIndent + 150;
+  const barBg = scene.add.rectangle(barStartX, y + boxHeight / 2, barWidth, barHeight, 0x222222)
+    .setOrigin(0, 0.5);
+  const barFill = scene.add.rectangle(barStartX, y + boxHeight / 2, 0, barHeight, 0x00ff00)
+    .setOrigin(0, 0.5);
 
+  const gatherGainLabel = scene.add.text(
+    barStartX + barWidth + 10,
+    y + boxHeight / 2,
+    `+${gatherGain}`,
+    { fontSize: '14px', color: '#fff' }
+  ).setOrigin(0, 0.5);
+
+  container.add([bg, label, barBg, barFill, gatherGainLabel]);
+
+  // Update function
+  const updateBar = () => {
+    const progress = Math.min(1, item.progress / clicksPerItem);
+    barFill.width = barWidth * progress;
+  };
+  updateBar();
+
+  // Click handling
   bg.on('pointerdown', () => {
-    if (item.cnt < item.max) {
-      item.cnt += 1;
-      menu.updateItem(`${parentId}:${item.title}`);
-      // Trigger update immediately
+    item.progress += 1;
+
+    if (item.progress >= clicksPerItem) {
+      item.cnt += gatherGain;          // add resource
+      item.progress = 0;      // reset progress
+      menu.updateItem(`${parentId}:${item.title}`); // refresh UI
     }
+
+    updateBar();
   });
 
   return {
     key: `${parentId}:${item.title}`,
-    elements: [bg, label],
+    elements: [bg, label, barBg, barFill, gatherGainLabel],
     updateFn: () => {
-        //
+      updateBar();
+      label.setText(`Gather: ${item.title}`);
     },
+    height: boxHeight
   };
 };
 
