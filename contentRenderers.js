@@ -2,71 +2,96 @@ export const gatherRenderer = (scene, container, item, y, menu, parentId, conten
   const boxHeight = contentHeight || menu.itemHeight;
   const progress = Math.min(1, item.cnt / item.max);
 
-  const bg = scene.add.rectangle(menu.contentIndent, y, menu.width - menu.contentIndent, boxHeight, 0x555555)
+  const bg = scene.add.rectangle(menu.contentIndent, y, menu.width - menu.contentIndent, boxHeight, 0x225522)
     .setOrigin(0)
     .setInteractive({ useHandCursor: true });
 
-  const barBg = scene.add.rectangle(menu.contentIndent + 60, y + boxHeight / 2, 150, 12, 0x222222)
-    .setOrigin(0, 0.5);
-  const barFill = scene.add.rectangle(menu.contentIndent + 60, y + boxHeight / 2, 150 * progress, 12, 0x00ff00)
-    .setOrigin(0, 0.5);
-
-  const label = scene.add.text(menu.contentIndent + 220, y + boxHeight / 2, `${item.cnt}/${item.max}`, {
+  const label = scene.add.text(menu.contentIndent + 10, y + boxHeight / 2, `Gather: ${item.title}`, {
     fontSize: '14px', color: '#fff'
   }).setOrigin(0, 0.5);
 
-  container.add([bg, barBg, barFill, label]);
+  container.add([bg, label]);
 
   bg.on('pointerdown', () => {
     if (item.cnt < item.max) {
       item.cnt += 1;
-      // Trigger update immediately
       menu.updateItem(`${parentId}:${item.title}`);
+      // Trigger update immediately
     }
   });
 
   return {
     key: `${parentId}:${item.title}`,
-    elements: [bg, barBg, barFill, label],
+    elements: [bg, label],
     updateFn: () => {
-      const newProgress = Math.min(1, item.cnt / item.max);
-      barFill.width = 150 * newProgress;
-      label.setText(`${item.cnt}/${item.max}`);
+        //
     }
   };
 };
 
 export const craftRenderer = (scene, container, recipe, y, menu, parentId, contentHeight) => {
-  const boxHeight = contentHeight || menu.itemHeight;
 
-  const bg = scene.add.rectangle(menu.contentIndent, y, menu.width - menu.contentIndent, boxHeight, 0x444444)
-    .setOrigin(0);
+//const boxHeight = contentHeight || menu.itemHeight;
 
-  const label = scene.add.text(menu.contentIndent + 10, y + boxHeight / 2, '', {
-    fontSize: '14px',
-    color: '#fff'
-  }).setOrigin(0, 0.5);
+const reqCount = Object.keys(recipe.requirements || {}).length;
+const lineHeight = 18; // height per requirement line
+const titleHeight = 20;
+const boxHeight = contentHeight || (titleHeight + (reqCount * lineHeight) + 10);
 
-  container.add([bg, label]);
 
-    const updateLabel = () => {
-    const reqText = Object.entries(recipe.requirements || {})
-    .map(([resId, amt]) => {
-      // Find resource by id instead of title
+  // Background
+  const bg = scene.add.rectangle(
+    menu.contentIndent,
+    y,
+    menu.width - menu.contentIndent,
+    boxHeight,
+    0x444444
+  ).setOrigin(0);
+
+  // Title (always white)
+  const titleLabel = scene.add.text(
+    menu.contentIndent + 10,
+    y + 5, // top offset for title
+    recipe.title,
+    { fontSize: '14px', color: '#ffffff' }
+  ).setOrigin(0, 0);
+
+  // Requirement text objects
+  const reqLabels = [];
+
+  // Create a text object for each requirement (initially empty)
+  Object.entries(recipe.requirements || {}).forEach(([resId], idx) => {
+    const reqLabel = scene.add.text(
+      menu.contentIndent + 10,
+      y + 23 + idx * 18, // stacked vertically below title
+      '',
+      { fontSize: '14px', color: '#ffffff' }
+    ).setOrigin(0, 0);
+    reqLabels.push({ resId, textObj: reqLabel });
+  });
+
+  // Update function
+  const updateLabel = () => {
+    reqLabels.forEach(({ resId, textObj }) => {
+      const amt = recipe.requirements[resId];
       const resItem = scene.inventoryManager.items.find(i => i.id === resId);
       const current = resItem ? resItem.cnt : 0;
-      const name = resItem ? resItem.title : resId; // fallback if resource not found
-      return `${name}: ${current}/${amt}`;
-    })
-    .join(' | ');
-  label.setText(`${recipe.title} (${reqText})`);
-};
+      const name = resItem ? resItem.title : resId;
 
+      textObj.setText(`${name}: ${current}/${amt}`);
+      textObj.setColor(current >= amt ? '#00ff00' : '#ffffff');
+    });
+  };
+
+  // Add all elements to container
+  container.add([bg, titleLabel, ...reqLabels.map(r => r.textObj)]);
+
+  // Initial update
   updateLabel();
 
   return {
     key: `${parentId}:${recipe.title}`,
-    elements: [bg, label],
+    elements: [bg, titleLabel, ...reqLabels.map(r => r.textObj)],
     updateFn: updateLabel
   };
 };
@@ -76,8 +101,8 @@ export const inventoryRenderer = (scene, container, item, y, menu, parentId, con
 
   // Type-based colors
   const typeColors = {
-    resource: 0x4caf50, // green
-    crafts: 0xff9800,   // orange
+    resource: 0x223322, // green
+    crafts: 0x220022,   // orange
     default: 0x555555
   };
 
@@ -91,6 +116,14 @@ export const inventoryRenderer = (scene, container, item, y, menu, parentId, con
     .setOrigin(0)
     .setStrokeStyle(1, 0x000000);
 
+  const progress = Math.min(1, item.cnt / item.max);
+  const barBg = scene.add.rectangle(menu.contentIndent + 80, y + boxHeight / 2, 100, 12, 0x222222)
+    .setOrigin(0, 0.5);
+  const barFill = scene.add.rectangle(menu.contentIndent + 80, y + boxHeight / 2, 100 * progress, 12, 0x00ff00)
+    .setOrigin(0, 0.5);
+  barBg.setVisible(item.max != null);
+  barFill.setVisible(item.max != null);
+  
   const label = scene.add.text(
     menu.contentIndent + 10, y + boxHeight / 2,
     `${item.title}`,
@@ -103,12 +136,14 @@ export const inventoryRenderer = (scene, container, item, y, menu, parentId, con
     { fontSize: '14px', color: '#fff' }
   ).setOrigin(1, 0.5);
 
-  container.add([bg, label, labelAmt]);
+  container.add([bg, barBg, barFill, label, labelAmt]);
 
   return {
     key: `${parentId}:${item.id}`,
-    elements: [bg, label, labelAmt],
+    elements: [bg, barBg, barFill, label, labelAmt],
     updateFn: () => {
+      const newProgress = Math.min(1, item.cnt / item.max);
+      barFill.width = 100 * newProgress;
       label.setText(`${item.title}`);
       labelAmt.setText(item.max != null ? `${item.cnt} / ${item.max}` : `${item.cnt}`);
     }
