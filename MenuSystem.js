@@ -13,19 +13,28 @@ export default class MenuSystem {
    */
     constructor(scene, config = {}) {
         this.scene = scene;
-        this.data = config.data || { parent: [] };
-    
-        this.x = config.x || 50;
-        this.y = config.y || 50;
-        this.width = config.width || 300;
-        this.itemHeight = config.itemHeight || 40;
-        this.contentIndent = (config.contentIndent !== undefined) ? config.contentIndent : 20;
-        this.verticalPadding = config.verticalPadding || 5;
-    
-        this.renderers = Object.assign({
-            default: this.renderDefaultItem
-        }, config.renderers || {});
-    
+
+        // Destructure config with defaults using ?? for numeric values
+        const {
+            data = { parent: [] },
+            x = 10,
+            y = 10,
+            width = 300,
+            itemHeight = 40,
+            contentIndent = 20,
+            verticalPadding = 5,
+            renderers = {}
+        } = config;
+        
+        this.data = data;
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.itemHeight = itemHeight;
+        this.contentIndent = contentIndent;
+        this.verticalPadding = verticalPadding;
+        this.renderers = { default: this.renderDefaultItem, ...renderers };
+        
         this.expandedParents = new Set();
         this.container = this.scene.add.container(this.x, this.y);
     
