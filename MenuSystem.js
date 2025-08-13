@@ -83,11 +83,11 @@ export default class MenuSystem {
             
             const rendererFn = this.renderers[type];
             // Renderers return { key, elements, updateFn }
-            const { key, elements, updateFn } = rendererFn(this.scene, this.container, item, currentY, this, parent.id, contentHeight);
+            const { key, elements, updateFn, height } = rendererFn(this.scene, this.container, item, currentY, this, parent.id, contentHeight);
     
-            this.itemRefs.set(key, { elements, updateFn });
-    
-            currentY += contentHeight + this.verticalPadding;
+            this.itemRefs.set(key, { elements, updateFn, height });
+
+            currentY += (height ?? parent.contentHeight ?? this.itemHeight) + this.verticalPadding;
           });
         }
       });

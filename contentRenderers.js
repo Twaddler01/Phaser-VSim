@@ -25,16 +25,16 @@ export const gatherRenderer = (scene, container, item, y, menu, parentId, conten
     elements: [bg, label],
     updateFn: () => {
         //
-    }
+    },
   };
 };
 
-export const craftRenderer = (scene, container, recipe, y, menu, parentId, contentHeight) => {
+export const craftRenderer = (scene, container, recipe, y, menu, parentId) => {
 
   const reqCount = Object.keys(recipe.requirements || {}).length;
   const lineHeight = 18; // height per requirement line
   const titleHeight = 20;
-  const boxHeight = contentHeight || (titleHeight + (reqCount * lineHeight) + 10);
+  const boxHeight = titleHeight + (reqCount * lineHeight) + 10;
 
   // Background
   const bg = scene.add.rectangle(
@@ -122,7 +122,8 @@ export const craftRenderer = (scene, container, recipe, y, menu, parentId, conte
   return {
     key: `${parentId}:${recipe.title}`,
     elements: [bg, titleLabel, ...reqLabels.map(r => r.textObj)],
-    updateFn: updateLabel
+    updateFn: updateLabel,
+    height: boxHeight
   };
 };
 

@@ -3,7 +3,7 @@
  * @property {string} id - Unique identifier for the parent menu section.
  * @property {string} type - Renderer type used to select the render function.
  * @property {Array} content - Array of items inside this parent menu.
- * @property {number} [contentHeight] - Optional. Height in pixels for each content item in this parent.
+ * @property {number} [contentHeight] - Default is 40. Height in pixels for each content item in this parent.
  */
 
 /**
@@ -19,7 +19,7 @@
 export const menuData = {
   parent: [
     { id: 'Gathering', type: 'gather', content: [] },
-    { id: 'Crafting', type: 'craft', content: [], contentHeight: 60 }
+    { id: 'Crafting', type: 'craft', content: [] }
   ]
 };
 
