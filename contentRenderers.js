@@ -1,5 +1,5 @@
-export const gatherRenderer = (scene, container, item, y, menu, parentId) => {
-  const boxHeight = menu.itemHeight * 1.5;
+export const gatherRenderer = (scene, container, item, y, menu, parentId, contentHeight) => {
+  const boxHeight = contentHeight || menu.itemHeight;
   const progress = Math.min(1, item.cnt / (item.required || 1000));
 
   const bg = scene.add.rectangle(menu.contentIndent, y, menu.width - menu.contentIndent, boxHeight, 0x555555)
@@ -36,8 +36,8 @@ export const gatherRenderer = (scene, container, item, y, menu, parentId) => {
   };
 };
 
-export const craftRenderer = (scene, container, recipe, y, menu, parentId) => {
-  const boxHeight = menu.itemHeight * 1.5;
+export const craftRenderer = (scene, container, recipe, y, menu, parentId, contentHeight) => {
+  const boxHeight = contentHeight || menu.itemHeight;
 
   const bg = scene.add.rectangle(menu.contentIndent, y, menu.width - menu.contentIndent, boxHeight, 0x444444)
     .setOrigin(0);
@@ -71,8 +71,8 @@ export const craftRenderer = (scene, container, recipe, y, menu, parentId) => {
   };
 };
 
-export const inventoryRenderer = (scene, container, item, y, menu, parentId) => {
-  const boxHeight = menu.itemHeight * 1.2;
+export const inventoryRenderer = (scene, container, item, y, menu, parentId, contentHeight) => {
+  const boxHeight = contentHeight || menu.itemHeight;
 
   // Type-based colors
   const typeColors = {
