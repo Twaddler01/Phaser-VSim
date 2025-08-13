@@ -70,3 +70,40 @@ export const craftRenderer = (scene, container, recipe, y, menu, parentId) => {
     updateFn: updateLabel
   };
 };
+
+export const inventoryRenderer = (scene, container, item, y, menu, parentId) => {
+  const boxHeight = menu.itemHeight * 1.2;
+
+  // Type-based colors
+  const typeColors = {
+    resource: 0x4caf50, // green
+    crafts: 0xff9800,   // orange
+    default: 0x555555
+  };
+
+  const bgColor = typeColors[item.type] || typeColors.default;
+
+  const bg = scene.add.rectangle(
+    menu.contentIndent, y,
+    menu.width - menu.contentIndent, boxHeight,
+    bgColor
+  )
+    .setOrigin(0)
+    .setStrokeStyle(1, 0x000000);
+
+  const label = scene.add.text(
+    menu.contentIndent + 10, y + boxHeight / 2,
+    `${item.title}: ${item.cnt}`,
+    { fontSize: '14px', color: '#fff' }
+  ).setOrigin(0, 0.5);
+
+  container.add([bg, label]);
+
+  return {
+    key: `${parentId}:${item.id}`,
+    elements: [bg, label],
+    updateFn: () => {
+      label.setText(`${item.title}: ${item.cnt}`);
+    }
+  };
+};

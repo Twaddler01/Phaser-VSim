@@ -1,5 +1,5 @@
 import MenuSystem from './MenuSystem.js';
-import { gatherRenderer, craftRenderer } from  './contentRenderers.js';
+import { gatherRenderer, craftRenderer, inventoryRenderer } from  './contentRenderers.js';
 import UIManager from './UIManager.js';
 import InventoryManager from './InventoryManager.js';
 import { menuData, inventoryData } from './gameData.js';
@@ -74,8 +74,11 @@ const myMenuSystem = new MenuSystem(this, {
 
         this.ui = new UIManager(this);
         
+        // Regulwr Menu
         this.menu = new MenuSystem(this, {
           data: menuData,
+          x: 320,
+          contentIndent: 0,
           renderers: {
             gather: gatherRenderer,
             craft: craftRenderer
@@ -83,14 +86,28 @@ const myMenuSystem = new MenuSystem(this, {
         });
         
         this.inventoryManager = new InventoryManager(this, this.menu);
-        
         this.inventoryManager.init(inventoryData);
-        
         this.inventoryManager.refreshMenu();
 
-        
-        this.debugUI();
+        // inventory Menu
+        this.inventoryMenu = new MenuSystem(this, {
+            x: 10,
+            contentIndent: 0,
+            id: 'Inventory',
+            data: { 
+                parent: [{
+                    id: 'All Inventory',
+                    type: 'inventory', // our new renderer
+                    content: this.inventoryManager.items
+                }]
+            },
+            renderers: {
+                inventory: inventoryRenderer
+            }
+        });
 
+
+        this.debugUI();
 
     } // create()
 

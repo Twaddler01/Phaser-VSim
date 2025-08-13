@@ -39,7 +39,7 @@ export default class SaveManager {
     try {
       const json = JSON.stringify(this.rootData);
       localStorage.setItem(this.storageKey, json);
-      console.log(`[SaveManager] Saved state at ${new Date().toLocaleTimeString()}`);
+      //console.log(`[SaveManager] Saved state at ${new Date().toLocaleTimeString()}`);
     } catch (e) {
       console.warn('[SaveManager] Failed to save state:', e);
     }

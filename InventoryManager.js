@@ -51,14 +51,23 @@ _onCountChange(item) {
         }
       });
     });
+    
+    // Update inventory
+    if (this.scene.inventoryMenu) {
+        this.scene.inventoryMenu.updateItem(`All Inventory:${item.id}`);
+    }
 }
 
   // Initialize inventory with an array of raw items
-  init(itemsArray) {
-    this.items = itemsArray.map(item => this._createTrackedItem(item));
-    this._trackedMap.clear();
-    this.items.forEach(item => this._trackedMap.set(item.id, item));
-  }
+    init(itemsArray) {
+      this.items = itemsArray.map(item => this._createTrackedItem(item));
+      this._trackedMap.clear();
+      this.items.forEach(item => this._trackedMap.set(item.id, item));
+    
+      // Replace original array contents with the tracked proxies
+      itemsArray.length = 0;
+      itemsArray.push(...this.items);
+    }
 
   // Get a tracked item by ID
   getItem(id) {
