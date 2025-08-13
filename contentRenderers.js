@@ -1,6 +1,6 @@
 export const gatherRenderer = (scene, container, item, y, menu, parentId, contentHeight) => {
   const boxHeight = contentHeight || menu.itemHeight;
-  const progress = Math.min(1, item.cnt / (item.required || 1000));
+  const progress = Math.min(1, item.cnt / item.max);
 
   const bg = scene.add.rectangle(menu.contentIndent, y, menu.width - menu.contentIndent, boxHeight, 0x555555)
     .setOrigin(0)
@@ -11,14 +11,14 @@ export const gatherRenderer = (scene, container, item, y, menu, parentId, conten
   const barFill = scene.add.rectangle(menu.contentIndent + 60, y + boxHeight / 2, 150 * progress, 12, 0x00ff00)
     .setOrigin(0, 0.5);
 
-  const label = scene.add.text(menu.contentIndent + 220, y + boxHeight / 2, `${item.cnt}/${item.required || 1000}`, {
+  const label = scene.add.text(menu.contentIndent + 220, y + boxHeight / 2, `${item.cnt}/${item.max}`, {
     fontSize: '14px', color: '#fff'
   }).setOrigin(0, 0.5);
 
   container.add([bg, barBg, barFill, label]);
 
   bg.on('pointerdown', () => {
-    if (item.cnt < (item.required || 1000)) {
+    if (item.cnt < item.max) {
       item.cnt += 1;
       // Trigger update immediately
       menu.updateItem(`${parentId}:${item.title}`);
@@ -29,9 +29,9 @@ export const gatherRenderer = (scene, container, item, y, menu, parentId, conten
     key: `${parentId}:${item.title}`,
     elements: [bg, barBg, barFill, label],
     updateFn: () => {
-      const newProgress = Math.min(1, item.cnt / (item.required || 1000));
+      const newProgress = Math.min(1, item.cnt / item.max);
       barFill.width = 150 * newProgress;
-      label.setText(`${item.cnt}/${item.required || 1000}`);
+      label.setText(`${item.cnt}/${item.max}`);
     }
   };
 };
@@ -93,17 +93,24 @@ export const inventoryRenderer = (scene, container, item, y, menu, parentId, con
 
   const label = scene.add.text(
     menu.contentIndent + 10, y + boxHeight / 2,
-    `${item.title}: ${item.cnt}`,
+    `${item.title}`,
     { fontSize: '14px', color: '#fff' }
   ).setOrigin(0, 0.5);
 
-  container.add([bg, label]);
+  const labelAmt = scene.add.text(
+    bg.width - 10, y + boxHeight / 2,
+    item.max != null ? `${item.cnt} / ${item.max}` : `${item.cnt}`,
+    { fontSize: '14px', color: '#fff' }
+  ).setOrigin(1, 0.5);
+
+  container.add([bg, label, labelAmt]);
 
   return {
     key: `${parentId}:${item.id}`,
-    elements: [bg, label],
+    elements: [bg, label, labelAmt],
     updateFn: () => {
-      label.setText(`${item.title}: ${item.cnt}`);
+      label.setText(`${item.title}`);
+      labelAmt.setText(item.max != null ? `${item.cnt} / ${item.max}` : `${item.cnt}`);
     }
   };
 };

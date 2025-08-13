@@ -17,46 +17,46 @@ export default class InventoryManager {
     this._onCountChange = this._onCountChange.bind(this);
   }
 
-_createTrackedItem(item) {
-  let _cnt = item.cnt || 0;
-  const self = this;
-
-  return {
-    ...item,  // copies all properties, including requirements, required, etc.
-
-    get cnt() {
-      return _cnt;
-    },
-    set cnt(value) {
-      if (_cnt !== value) {
-        _cnt = value;
-        self._onCountChange(this);
-      }
-    }
-  };
-}
-
-// Called whenever an item's count changes
-_onCountChange(item) {
-  // Update gather menu item (title used for display key)
-  this.menu.updateItem(`Gathering:${item.title}`);
-
-  // Update all craft menu items that depend on this resource's id
-  this.menu.data.parent
-    .filter(p => p.type === 'craft')
-    .forEach(parent => {
-      parent.content.forEach(recipe => {
-        if (recipe.requirements && recipe.requirements[item.id] !== undefined) {
-          this.menu.updateItem(`${parent.id}:${recipe.title}`);
-        }
-      });
-    });
+    _createTrackedItem(item) {
+      let _cnt = item.cnt || 0;
+      const self = this;
     
-    // Update inventory
-    if (this.scene.inventoryMenu) {
-        this.scene.inventoryMenu.updateItem(`All Inventory:${item.id}`);
+      return {
+        ...item,  // copies all properties, including requirements, required, etc.
+    
+        get cnt() {
+          return _cnt;
+        },
+        set cnt(value) {
+          if (_cnt !== value) {
+            _cnt = value;
+            self._onCountChange(this);
+          }
+        }
+      };
     }
-}
+    
+    // Called whenever an item's count changes
+    _onCountChange(item) {
+      // Update gather menu item (title used for display key)
+      this.menu.updateItem(`Gathering:${item.title}`);
+    
+      // Update all craft menu items that depend on this resource's id
+      this.menu.data.parent
+        .filter(p => p.type === 'craft')
+        .forEach(parent => {
+          parent.content.forEach(recipe => {
+            if (recipe.requirements && recipe.requirements[item.id] !== undefined) {
+              this.menu.updateItem(`${parent.id}:${recipe.title}`);
+            }
+          });
+        });
+        
+        // Update inventory
+        if (this.scene.inventoryMenu) {
+            this.scene.inventoryMenu.updateItem(`All Inventory:${item.id}`);
+        }
+    }
 
   // Initialize inventory with an array of raw items
     init(itemsArray) {
