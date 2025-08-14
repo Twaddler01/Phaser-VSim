@@ -149,7 +149,8 @@ const menuData = {
                 id: 'menu3content1', 
                 title: 'New Menu - Content 1', 
                 bgColor: 0x333333, 
-                action: 'act3.1'
+                action: 'act3.1',
+                type: 'default'
             });
         });
         

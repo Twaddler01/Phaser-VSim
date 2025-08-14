@@ -75,8 +75,8 @@ export default class MenuSystem {
             
             // Only render children if content exists and is an array
             if (this.expandedParents.has(parent.id) && Array.isArray(parent.content)) {
-                // Only unlocked items
-                const unlockedContent = parent.content.filter(c => c.unlocked);
+                // Only unlocked or default items
+                const unlockedContent = parent.content.filter(c => c.unlocked || c.type === 'default');
                 unlockedContent.forEach(item => {
                     const type = parent.type && this.renderers[parent.type]
                         ? parent.type
