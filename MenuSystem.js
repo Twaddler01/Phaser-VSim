@@ -45,83 +45,83 @@ export default class MenuSystem {
     }
 
     render() {
-      this.container.removeAll(true);
-      this.itemRefs.clear();
-    
-      let currentY = 0;
-      this.data.parent.forEach(parent => {
-        // Draw parent button
-        const parentBg = this.scene.add.rectangle(0, currentY, this.width, this.itemHeight, 0x0000ff)
-          .setOrigin(0)
-          .setInteractive({ useHandCursor: true });
-    
-        const parentText = this.scene.add.text(10, currentY + this.itemHeight / 2, parent.id, {
-          fontSize: '18px',
-          color: '#ffffff'
-        }).setOrigin(0, 0.5);
-    
-        this.container.add([parentBg, parentText]);
-    
-        parentBg.on('pointerdown', () => {
-          if (this.expandedParents.has(parent.id)) {
-            this.expandedParents.delete(parent.id);
-          } else {
-            this.expandedParents.add(parent.id);
-          }
-          this.render();
-        });
-    
-        currentY += this.itemHeight + this.verticalPadding;
-    
-        // Only render children if content exists and is an array
-        if (this.expandedParents.has(parent.id) && Array.isArray(parent.content)) {
-          // Only unlocked items
-          const unlockedContent = parent.content.filter(c => c.unlocked);
-          unlockedContent.forEach(item => {
-            const type = parent.type && this.renderers[parent.type]
-              ? parent.type
-              : "default";
-            const contentHeight = parent.contentHeight ?? this.itemHeight;
+        this.container.removeAll(true);
+        this.itemRefs.clear();
+        
+        let currentY = 0;
+        this.data.parent.forEach(parent => {
+            // Draw parent button
+            const parentBg = this.scene.add.rectangle(0, currentY, this.width, this.itemHeight, 0x0000ff)
+                .setOrigin(0)
+                .setInteractive({ useHandCursor: true });
             
-            const rendererFn = this.renderers[type];
-            // Renderers return { key, elements, updateFn }
-            const { key, elements, updateFn, height } = rendererFn(this.scene, this.container, item, currentY, this, parent.id, contentHeight);
-    
-            this.itemRefs.set(key, { elements, updateFn, height });
+            const parentText = this.scene.add.text(10, currentY + this.itemHeight / 2, parent.id, {
+                fontSize: '18px',
+                color: '#ffffff'
+            }).setOrigin(0, 0.5);
+            
+            this.container.add([parentBg, parentText]);
+            
+            parentBg.on('pointerdown', () => {
+                if (this.expandedParents.has(parent.id)) {
+                    this.expandedParents.delete(parent.id);
+                } else {
+                    this.expandedParents.add(parent.id);
+                }
+                this.render();
+            });
+        
+            currentY += this.itemHeight + this.verticalPadding;
+            
+            // Only render children if content exists and is an array
+            if (this.expandedParents.has(parent.id) && Array.isArray(parent.content)) {
+                // Only unlocked items
+                const unlockedContent = parent.content.filter(c => c.unlocked);
+                unlockedContent.forEach(item => {
+                    const type = parent.type && this.renderers[parent.type]
+                        ? parent.type
+                        : "default";
+                    const contentHeight = parent.contentHeight ?? this.itemHeight;
+                    
+                    const rendererFn = this.renderers[type];
+                    // Renderers return { key, elements, updateFn }
+                    const { key, elements, updateFn, height } = rendererFn(this.scene, this.container, item, currentY, this, parent.id, contentHeight);
+                    
+                    this.itemRefs.set(key, { elements, updateFn, height });
+                    
+                    currentY += (height ?? parent.contentHeight ?? this.itemHeight) + this.verticalPadding;
+                });
+            }
+        });
+    }
 
-            currentY += (height ?? parent.contentHeight ?? this.itemHeight) + this.verticalPadding;
-          });
+    // Call this when resource changes to update relevant UI items
+    updateItem(key) {
+        const ref = this.itemRefs.get(key);
+        if (ref && ref.updateFn) {
+            ref.updateFn();
         }
-      });
     }
-
-  // Call this when resource changes to update relevant UI items
-  updateItem(key) {
-    const ref = this.itemRefs.get(key);
-    if (ref && ref.updateFn) {
-      ref.updateFn();
+        
+    // Default renderer: rectangle + text
+    renderDefaultItem(scene, container, item, y, menu) {
+        const bg = scene.add.rectangle(menu.contentIndent, y, menu.width - menu.contentIndent, menu.itemHeight, item.bgColor || 0x333333)
+            .setOrigin(0)
+            .setInteractive({ useHandCursor: true });
+        
+        const text = scene.add.text(menu.contentIndent + 10, y + menu.itemHeight / 2, item.title, {
+            fontSize: '16px',
+            color: '#fff'
+        }).setOrigin(0, 0.5);
+        
+        container.add([bg, text]);
+        
+        bg.on('pointerdown', () => {
+            console.log(`Default action: ${item.action}`);
+        });
+        
+        return y + menu.itemHeight + menu.verticalPadding;
     }
-  }
-
-  // Default renderer: rectangle + text
-  renderDefaultItem(scene, container, item, y, menu) {
-    const bg = scene.add.rectangle(menu.contentIndent, y, menu.width - menu.contentIndent, menu.itemHeight, item.bgColor || 0x333333)
-      .setOrigin(0)
-      .setInteractive({ useHandCursor: true });
-
-    const text = scene.add.text(menu.contentIndent + 10, y + menu.itemHeight / 2, item.title, {
-      fontSize: '16px',
-      color: '#fff'
-    }).setOrigin(0, 0.5);
-
-    container.add([bg, text]);
-
-    bg.on('pointerdown', () => {
-      console.log(`Default action: ${item.action}`);
-    });
-
-    return y + menu.itemHeight + menu.verticalPadding;
-  }
 
     addParentMenu(id, type) {
         if (this.data.parent.find(p => p.id === id)) return;
@@ -153,12 +153,11 @@ export default class MenuSystem {
     }
 
     removeParentMenu(parentId) {
-      const index = this.data.parent.findIndex(p => p.id === parentId);
-      if (index !== -1) {
-        // Remove the parent and its content
-        this.data.parent.splice(index, 1);
-        this.render();
-      }
+        const index = this.data.parent.findIndex(p => p.id === parentId);
+        if (index !== -1) {
+            // Remove the parent and its content
+            this.data.parent.splice(index, 1);
+            this.render();
+        }
     }
-
 }

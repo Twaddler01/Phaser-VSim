@@ -7,8 +7,8 @@ import SaveManager from './SaveManager.js';
 
 // Pass the actual arrays to be saved — for menuData pass the `.parent` array directly
 const gameData = {
-  menuData: menuData.parent,
-  inventoryData,
+    menuData: menuData.parent,
+    inventoryData,
 };
 
 // `000`
@@ -103,75 +103,74 @@ const menuData = {
     } // create()
 
     debugUI() {
-
         const debugFn = {
-          debugUITitle(scene, x, y) {
-            const titleBg = scene.add.rectangle(0, 0, 180, 40, 0x333333).setOrigin(0);
-            const titleText = scene.add.text(10, titleBg.height / 2, 'DEBUG BUTTONS:', {
-              fontSize: '20px',
-              color: '#fff',
-              fontStyle: 'bold',
-            }).setOrigin(0, 0.5);
+            debugUITitle(scene, x, y) {
+                const titleBg = scene.add.rectangle(0, 0, 180, 40, 0x333333).setOrigin(0);
+                const titleText = scene.add.text(10, titleBg.height / 2, 'DEBUG BUTTONS:', {
+                    fontSize: '20px',
+                    color: '#fff',
+                    fontStyle: 'bold',
+                }).setOrigin(0, 0.5);
+            
+                return scene.add.container(x, y, [titleBg, titleText]);
+            },
         
-            return scene.add.container(x, y, [titleBg, titleText]);
-          },
-        
-          debugUIButton(scene, x, y, label, onClick) {
-            const bg = scene.add.rectangle(0, 0, 180, 40, 0x333333)
-              .setOrigin(0)
-              .setInteractive({ useHandCursor: true })
-              .on('pointerdown', () => {
-                if (onClick) onClick();
-              });
-        
-            const border = scene.add.graphics();
-            border.lineStyle(2, 0xffffff);
-            border.strokeRect(bg.x, bg.y, bg.width, bg.height);
-        
-            const text = scene.add.text(10, bg.height / 2, label, {
-              fontSize: '20px',
-              color: '#fff'
-            }).setOrigin(0, 0.5);
-        
-            return scene.add.container(x, y, [bg, border, text]);
-          }
+            debugUIButton(scene, x, y, label, onClick) {
+                const bg = scene.add.rectangle(0, 0, 180, 40, 0x333333)
+                    .setOrigin(0)
+                    .setInteractive({ useHandCursor: true })
+                    .on('pointerdown', () => {
+                        if (onClick) onClick();
+                    });
+                
+                const border = scene.add.graphics();
+                border.lineStyle(2, 0xffffff);
+                border.strokeRect(bg.x, bg.y, bg.width, bg.height);
+                
+                const text = scene.add.text(10, bg.height / 2, label, {
+                    fontSize: '20px',
+                    color: '#fff'
+                }).setOrigin(0, 0.5);
+                
+                return scene.add.container(x, y, [bg, border, text]);
+            }
         };
         
         debugFn.debugUITitle(this, 10, 450);
         
         debugFn.debugUIButton(this, 10, 500, 'Add: New Menu', () => {
-          console.log('Added: New Menu...');
-          this.menu.addParentMenu('New Menu');
+            console.log('Added: New Menu...');
+            this.menu.addParentMenu('New Menu');
         });
         
         debugFn.debugUIButton(this, 10, 550, 'Add: New Menu Content', () => {
-          console.log('Added: New Menu Content');
-          this.menu.addContentToParent('New Menu', { 
-              id: 'menu3content1', 
-              title: 'New Menu - Content 1', 
-              bgColor: 0x333333, 
-              action: 'act3.1'
-          });
+            console.log('Added: New Menu Content');
+            this.menu.addContentToParent('New Menu', { 
+                id: 'menu3content1', 
+                title: 'New Menu - Content 1', 
+                bgColor: 0x333333, 
+                action: 'act3.1'
+            });
         });
         
         debugFn.debugUIButton(this, 10, 600, 'Renove: New Menu', () => {
-          console.log('Renoved: New Menu...');
-          this.menu.removeParentMenu('New Menu');
+            console.log('Renoved: New Menu...');
+            this.menu.removeParentMenu('New Menu');
         });
 
         debugFn.debugUIButton(this, 10, 650, 'Renove: Wood', () => {
-          console.log('Renoved: Wood...');
-          this.inventoryManager.removeItem('wood');
+            console.log('Renoved: Wood...');
+            this.inventoryManager.removeItem('wood');
         });
         
-        // {type, id, title, cnt})
         debugFn.debugUIButton(this, 10, 700, 'Add: Metal', () => {
-          console.log('Added: Metal...');
-          const itemToAdd = 'metal';
-          this.inventoryManager.addItem(itemToAdd);
+            console.log('Added: Metal...');
+            const itemToAdd = 'metal';
+            this.inventoryManager.addItem(itemToAdd);
         });
         
-                        
+        //
+        
     }
 
 } // MainScene
