@@ -164,7 +164,13 @@ const menuData = {
           this.inventoryManager.removeItem('wood');
         });
         
-        //
+        // {type, id, title, cnt})
+        debugFn.debugUIButton(this, 10, 700, 'Add: Metal', () => {
+          console.log('Added: Metal...');
+          const itemToAdd = 'metal';
+          this.inventoryManager.addItem(itemToAdd);
+        });
+        
                         
     }
 

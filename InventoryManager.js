@@ -1,5 +1,8 @@
 import { inventoryData } from './gameData.js';
 
+// Track live proxy updates -- for unlocking items live
+const TRACKED = Symbol('tracked');
+
 export default class InventoryManager {
   /**
    * @param {Phaser.Scene} scene
@@ -19,24 +22,32 @@ export default class InventoryManager {
     this._onCountChange = this._onCountChange.bind(this);
   }
 
-    _createTrackedItem(item) {
-      let _cnt = item.cnt || 0;
-      const self = this;
-    
-      return {
-        ...item,  // copies all properties, including requirements, required, etc.
-    
-        get cnt() {
-          return _cnt;
-        },
-        set cnt(value) {
-          if (_cnt !== value) {
-            _cnt = value;
-            self._onCountChange(this);
-          }
-        }
-      };
-    }
+_createTrackedItem(item) {
+  if (item[TRACKED]) return item;            // already decorated
+
+  let _cnt = item.cnt || 0;
+  const self = this;
+
+  Object.defineProperty(item, 'cnt', {
+    get() { return _cnt; },
+    set(v) {
+      if (_cnt !== v) {
+        _cnt = v;
+        self._onCountChange(item);
+      }
+    },
+    enumerable: true,
+    configurable: true
+  });
+
+  Object.defineProperty(item, TRACKED, {
+    value: true,
+    enumerable: false,
+    configurable: false
+  });
+
+  return item; // same object, now with accessor
+}
     
     // Called whenever an item's count changes
     _onCountChange(item) {
@@ -61,55 +72,73 @@ export default class InventoryManager {
     }
 
   // Initialize inventory with an array of raw items
-    init(itemsArray) {
-      this.items = itemsArray.map(item => this._createTrackedItem(item));
-      this._trackedMap.clear();
-      this.items.forEach(item => this._trackedMap.set(item.id, item));
-    
-      // Replace original array contents with the tracked proxies
-      itemsArray.length = 0;
-      itemsArray.push(...this.items);
-    }
+init(itemsArray) {
+  itemsArray.forEach(i => this._createTrackedItem(i)); // decorate originals
+
+  this.items = itemsArray; // reference the same objects
+  this._trackedMap.clear();
+  this.items.forEach(i => this._trackedMap.set(i.id, i));
+}
 
   // Get a tracked item by ID
   getItem(id) {
     return this._trackedMap.get(id);
   }
 
-  // Add a new item (raw shape: {type, id, title, cnt})
-  addItem(rawItem) {
-    if (this._trackedMap.has(rawItem.id)) {
-      console.warn(`Item with id '${rawItem.id}' already exists`);
-      return;
-    }
-    const tracked = this._createTrackedItem(rawItem);
-    this.items.push(tracked);
-    this._trackedMap.set(tracked.id, tracked);
-    this.refreshMenu();
+addItem(id) {
+  const raw = inventoryData.find(i => i.id === id);
+  if (!raw) {
+    console.warn(`Item '${id}' not found`);
+    return;
+  }
+  if (raw.unlocked) {
+    console.warn(`Item '${id}' is already unlocked`);
+    return;
   }
 
-  // Remove item by ID
-  removeItem(id) {
-    // Remove from tracked items array
-    const idx = this.items.findIndex(i => i.id === id);
-    if (idx !== -1) {
-      this.items.splice(idx, 1);
-      this._trackedMap.delete(id);
-      this.refreshMenu();
-    }
-    // Remove from msin/save array
-    const idx_inventoryData = inventoryData.findIndex(i => i.id === id);
-    if (idx_inventoryData !== -1) {
-      inventoryData.splice(idx_inventoryData, 1);
-      if (this.scene.inventoryMenu) this.scene.inventoryMenu.render();
-    }
+  raw.unlocked = true;
+
+  // Decorate this specific item in-place and register it
+  const tracked = this._createTrackedItem(raw);
+  if (!this._trackedMap.has(tracked.id)) {
+    this._trackedMap.set(tracked.id, tracked);
+    this.items.push(tracked);
   }
+
+  this.refreshMenu();
+  if (this.scene.inventoryMenu) this.scene.inventoryMenu.render();
+}
+
+removeItem(id) {
+  // 1. Find in master array
+  const raw = inventoryData.find(i => i.id === id);
+  if (!raw) {
+    console.warn(`Item '${id}' not found in inventoryData`);
+    return;
+  }
+
+  // 2. Flag as locked
+  raw.unlocked = false;
+
+  // 3. Remove from tracked arrays/maps
+  const idx = this.items.findIndex(i => i.id === id);
+  if (idx !== -1) {
+    this.items.splice(idx, 1);
+    this._trackedMap.delete(id);
+  }
+
+  // 4. Refresh menus
+  this.refreshMenu();
+  if (this.scene.inventoryMenu) {
+    this.scene.inventoryMenu.render();
+  }
+}
 
   // Refresh menu data and rerender menu
 refreshMenu() {
   // Gather resources
-  const resources = this.items.filter(i => i.type === 'resource');
-  const crafts = this.items.filter(i => i.type === 'crafts');
+  const resources = this.items.filter(i => i.type === 'resource' && i.unlocked);
+  const crafts = this.items.filter(i => i.type === 'crafts' && i.unlocked);
 
   // Assign directly to menu data
   const parentData = this.menu.data.parent;
@@ -129,15 +158,29 @@ refreshMenu() {
   this.menu.render();
 }
 
-  // Return array of raw items for saving (e.g. JSON)
-  exportData() {
-    return this.items.map(item => ({
-      type: item.type,
-      id: item.id,
-      title: item.title,
-      cnt: item.cnt
-    }));
-  }
+// Return array of raw items for saving (e.g. JSON)
+exportData() {
+  // Save from the canonical array so everything persists
+  return inventoryData.map(({ type, id, title, cnt, unlocked }) => ({
+    type, id, title, cnt, unlocked
+  }));
+}
+
+importData(savedArray) {
+  // Merge saved values into the canonical objects
+  savedArray.forEach(sv => {
+    const raw = inventoryData.find(i => i.id === sv.id);
+    if (raw) {
+      raw.cnt = sv.cnt;               // will trigger accessor if already decorated
+      raw.unlocked = !!sv.unlocked;
+    }
+  });
+
+  // Ensure everything is decorated and indexed
+  this.init(inventoryData);
+  this.refreshMenu();
+  if (this.scene.inventoryMenu) this.scene.inventoryMenu.render();
+}
 
   // Load inventory from saved raw data array
   importData(savedArray) {

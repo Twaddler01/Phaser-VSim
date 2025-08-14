@@ -25,11 +25,12 @@ export const menuData = {
 
 export const inventoryData = [
     // Resources
-    { type: 'resource', id: 'fiber', title: 'Fiber', cnt: 0, max: 500, progress: 0, hps: 5 },
-    { type: 'resource', id: 'wood', title: 'Wood', cnt: 0, max: 500, progress: 0, hps: 10 },
-    { type: 'resource', id: 'stone', title: 'Stone', cnt: 0, max: 500, progress: 0, hps: 15 },
+    { type: 'resource', id: 'fiber', title: 'Fiber', cnt: 0, max: 500, progress: 0, hps: 5, unlocked: true },
+    { type: 'resource', id: 'wood', title: 'Wood', cnt: 0, max: 500, progress: 0, hps: 10, unlocked: true },
+    { type: 'resource', id: 'stone', title: 'Stone', cnt: 0, max: 500, progress: 0, hps: 15, unlocked: true },
+    { type: 'resource', id: 'metal', title: 'Metal', cnt: 0, max: 500, progress: 0, hps: 20, unlocked: false },
     // Crafts
-    { type: 'crafts', id: 'stone_axe', title: 'Stone Axe', cnt: 0, requirements: { wood: 10, stone: 5 } },
-    { type: 'crafts', id: 'campfire', title: 'Campfire', cnt: 0, requirements: { wood: 5, stone: 2 } },
-    { type: 'crafts', id: 'wooden_spear', title: 'Wooden Spear', cnt: 0, requirements: { wood: 8 } }
+    { type: 'crafts', id: 'stone_axe', title: 'Stone Axe', cnt: 0, requirements: { wood: 10, stone: 5 }, unlocked: true },
+    { type: 'crafts', id: 'campfire', title: 'Campfire', cnt: 0, requirements: { wood: 5, stone: 2 }, unlocked: true },
+    { type: 'crafts', id: 'wooden_spear', title: 'Wooden Spear', cnt: 0, requirements: { wood: 8 }, unlocked: true }
 ];
