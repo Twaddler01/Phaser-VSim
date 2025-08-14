@@ -1,3 +1,5 @@
+import { inventoryData } from './gameData.js';
+
 export default class InventoryManager {
   /**
    * @param {Phaser.Scene} scene
@@ -88,11 +90,18 @@ export default class InventoryManager {
 
   // Remove item by ID
   removeItem(id) {
+    // Remove from tracked items array
     const idx = this.items.findIndex(i => i.id === id);
     if (idx !== -1) {
       this.items.splice(idx, 1);
       this._trackedMap.delete(id);
       this.refreshMenu();
+    }
+    // Remove from msin/save array
+    const idx_inventoryData = inventoryData.findIndex(i => i.id === id);
+    if (idx_inventoryData !== -1) {
+      inventoryData.splice(idx_inventoryData, 1);
+      if (this.scene.inventoryMenu) this.scene.inventoryMenu.render();
     }
   }
 

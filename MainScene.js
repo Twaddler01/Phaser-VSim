@@ -60,16 +60,6 @@ const menuData = {
         ] }
     ]
 };
-
-const myMenuSystem = new MenuSystem(this, {
-    data: menuData,
-    x: 50,
-    y: 50,
-    width: 300,
-    itemHeight: 40,
-    contentIndent: 0,
-    verticalPadding: 8
-});
 */
 
         this.ui = new UIManager(this);
@@ -85,6 +75,7 @@ const myMenuSystem = new MenuSystem(this, {
           }
         });
         
+        // Tracks inventory for other elements at runtime 
         this.inventoryManager = new InventoryManager(this, this.menu);
         this.inventoryManager.init(inventoryData);
         this.inventoryManager.refreshMenu();
@@ -166,6 +157,11 @@ const myMenuSystem = new MenuSystem(this, {
         debugFn.debugUIButton(this, 10, 600, 'Renove: New Menu', () => {
           console.log('Renoved: New Menu...');
           this.menu.removeParentMenu('New Menu');
+        });
+
+        debugFn.debugUIButton(this, 10, 650, 'Renove: Wood', () => {
+          console.log('Renoved: Wood...');
+          this.inventoryManager.removeItem('wood');
         });
         
         //

@@ -1,9 +1,10 @@
 export const gatherRenderer = (scene, container, item, y, menu, parentId, contentHeight) => {
   const boxHeight = contentHeight || menu.itemHeight;
-  item.progress = item.progress || 0;         // 0 → 1, increments per click
-////
-const clicksPerItem = item.hps || 10; // configurable "clicks to gather 1"
-const gatherGain = 1;
+  if (item.progress == null) item.progress = 0; // 0 → 1, increments per click
+
+//// Crafted objects will modify these
+  const clicksPerItem = item.hps || 10; // configurable "clicks to gather 1"
+  const gatherGain = 1;
 
   // Background
   const bg = scene.add.rectangle(

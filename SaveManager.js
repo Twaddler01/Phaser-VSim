@@ -10,7 +10,11 @@ export default class SaveManager {
     this.storageKey = storageKey;
     this.intervalId = null;
 
-    this.load();
+    const hasSave = this.load();
+    if (!hasSave) {
+        this.resetSessionProgress(); // Auto reset on new session
+    }
+        
     this.startAutoSave(autoSaveInterval);
 
     window.addEventListener('beforeunload', () => this.save());
@@ -60,4 +64,19 @@ export default class SaveManager {
     // Optionally reset arrays if you want here
     console.log('[SaveManager] Cleared saved state');
   }
+
+  /** Reset progress for resources at start of new session */
+  resetSessionProgress() {
+        for (const key in this.rootData) {
+            const arr = this.rootData[key];
+            if (Array.isArray(arr)) {
+                arr.forEach(item => {
+                    if (item.type === 'resource') {
+                        item.progress = 0;
+                    }
+                });
+            }
+        }
+        //console.log('[SaveManager] Reset progress for new session');
+    }
 }
