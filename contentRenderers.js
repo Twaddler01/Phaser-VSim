@@ -2,21 +2,6 @@ export const gatherRenderer = (scene, container, item, y, menu, parentId, conten
   const boxHeight = contentHeight || menu.itemHeight;
   if (item.progress == null) item.progress = 0; // 0 → 1, increments per click
 
-//// Crafted objects will modify these
-
-// swtup modified effects
-// clicksPerItem adj => stone axe
-/*let clicksPerItem = item.hps || 10; // configurable "clicks to gather 1"
-
-const woodMod = scene.inventoryManager.items.find(i => i.id === 'stone_axe');
-if (woodMod.id === 'stone_axe') {
-    if (item.id === 'wood') {
-        clicksPerItem = item.hps - (woodMod.cnt * 2);
-    }
-}*/
-
-
-
   const gatherGain = 1;
 
   // Background
@@ -59,7 +44,7 @@ if (woodMod.id === 'stone_axe') {
 
     const woodMod = scene.inventoryManager.getItem('stone_axe');
     if (woodMod && item.id === 'wood') {
-      clicks -= woodMod.cnt * 2;
+      clicks -= 4;
     }
 
     return Math.max(1, clicks);
@@ -87,6 +72,29 @@ if (woodMod.id === 'stone_axe') {
 
     if (item.progress >= getClicksPerItem()) {
       item.cnt += gatherGain;          // add resource
+
+// Crafts
+      if (item.id === 'wood') {
+        // Find crafted item that modifies wood
+        const craftedMod = scene.inventoryManager.items.find(i => i.mod === item.id);
+        if (craftedMod.cnt > 0) {
+          craftedMod.cdur -= 5;
+          if (craftedMod.cdur <= 0) {
+            craftedMod.cdur = 0;
+            craftedMod.cnt -= 1;
+            if (craftedMod.cnt > 0) {
+              craftedMod.cdur = craftedMod.dur;
+            }
+          }
+        } else {
+          craftedMod.cdur = craftedMod.dur;
+        }
+        // Refresh
+        if (scene.inventoryMenu) {
+            scene.inventoryMenu.updateItem(`All Inventory:${craftedMod.id}`);
+        }
+      }
+      
       item.progress = 0;      // reset progress
       menu.updateItem(`${parentId}:${item.title}`); // refresh UI
     }
@@ -209,7 +217,7 @@ export const inventoryRenderer = (scene, container, item, y, menu, parentId, con
   // Type-based colors
   const typeColors = {
     resource: 0x223322, // green
-    crafts: 0x220022,   // orange
+    crafts: 0x220022,   // purple
     default: 0x555555
   };
 
@@ -237,20 +245,43 @@ export const inventoryRenderer = (scene, container, item, y, menu, parentId, con
     { fontSize: '14px', color: '#fff' }
   ).setOrigin(0, 0.5);
 
+  // Crafts only -- tools
+  const durability = Math.min(1, item.cdur / item.dur);
+  const d_barBg = scene.add.rectangle(menu.contentIndent + 120, y + boxHeight / 2, 100, 12, 0x4d004d)
+    .setOrigin(0, 0.5);
+  d_barBg.setVisible(false);
+  const d_barFill = scene.add.rectangle(menu.contentIndent + 120, y + boxHeight / 2, 100 * durability, 12, 0xb300b3)
+    .setOrigin(0, 0.5);
+  d_barFill.setVisible(false);
+
+// Crafts durability
+  if (item.type === 'crafts') {
+    const craftItem = scene.inventoryManager.items.find(i => i.id === item.id);
+    d_barBg.setVisible(craftItem && craftItem.cnt > 0);
+    d_barFill.setVisible(craftItem && craftItem.cnt > 0);
+  }
+
   const labelAmt = scene.add.text(
     bg.width - 10, y + boxHeight / 2,
     item.max != null ? `${item.cnt} / ${item.max}` : `${item.cnt}`,
     { fontSize: '14px', color: '#fff' }
   ).setOrigin(1, 0.5);
 
-  container.add([bg, barBg, barFill, label, labelAmt]);
+  container.add([bg, barBg, barFill, label, labelAmt, d_barBg, d_barFill]);
 
   return {
     key: `${parentId}:${item.id}`,
-    elements: [bg, barBg, barFill, label, labelAmt],
+    elements: [bg, barBg, barFill, label, labelAmt, d_barBg, d_barFill],
     updateFn: () => {
       const newProgress = Math.min(1, item.cnt / item.max);
       barFill.width = 100 * newProgress;
+      const newDur = Math.min(1, item.cdur / item.dur);
+      d_barFill.width = 100 * newDur;
+      if (item.type === 'crafts') {
+        const craftItem = scene.inventoryManager.items.find(i => i.id === item.id);
+        d_barBg.setVisible(craftItem && craftItem.cnt > 0);
+        d_barFill.setVisible(craftItem && craftItem.cnt > 0);
+      }
       label.setText(`${item.title}`);
       labelAmt.setText(item.max != null ? `${item.cnt} / ${item.max}` : `${item.cnt}`);
     }

@@ -168,29 +168,4 @@ export default class InventoryManager {
             type, id, title, cnt, unlocked
         }));
     }
-
-/*
-    importData(savedArray) {
-        // Merge saved values into the canonical objects
-        savedArray.forEach(sv => {
-            const raw = inventoryData.find(i => i.id === sv.id);
-            if (raw) {
-                raw.cnt = sv.cnt; // will trigger accessor if already decorated
-                raw.unlocked = !!sv.unlocked;
-            }
-        });
-        
-        // Ensure everything is decorated and indexed
-        this.init(inventoryData);
-        this.refreshMenu();
-        if (this.scene.inventoryMenu) this.scene.inventoryMenu.render();
-    }
-
-    // Load inventory from saved raw data array
-    importData(savedArray) {
-        this.init(savedArray);
-        this.refreshMenu();
-    }
- */
- 
 }
