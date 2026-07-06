@@ -27,7 +27,7 @@ export const inventoryData = [
     // Resources
     { type: 'resource', id: 'fiber', title: 'Fiber', cnt: 0, max: 500, progress: 0, hps: 5, unlocked: true },
     { type: 'resource', id: 'wood', title: 'Wood', cnt: 0, max: 500, progress: 0, hps: 10, unlocked: true },
-    { type: 'resource', id: 'stone', title: 'Stone', cnt: 0, max: 500, progress: 0, hps: 15, unlocked: true },
+    { type: 'resource', id: 'stone', title: 'Stone', cnt: 0, max: 500, progress: 0, hps: 1, unlocked: true },
     { type: 'resource', id: 'metal', title: 'Metal', cnt: 0, max: 500, progress: 0, hps: 20, unlocked: false },
     // Crafts
     { type: 'crafts', id: 'stone_axe', title: 'Stone Axe', cnt: 0, requirements: { wood: 10, stone: 5 }, unlocked: true },

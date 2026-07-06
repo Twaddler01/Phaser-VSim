@@ -91,7 +91,8 @@ export default class InventoryManager {
             console.warn(`Item '${id}' not found`);
             return;
         }
-        if (raw.unlocked) {
+        const item = this.items.find(i => i.id === id);
+        if (raw.unlocked || item.unlocked) {
             console.warn(`Item '${id}' is already unlocked`);
             return;
         }
@@ -123,8 +124,10 @@ export default class InventoryManager {
         // 3. Remove from tracked arrays/maps
         const idx = this.items.findIndex(i => i.id === id);
         if (idx !== -1) {
-            this.items.splice(idx, 1);
-            this._trackedMap.delete(id);
+            //this.items.splice(idx, 1);
+            const item = this.items.find(i => i.id === id);
+            item.unlocked = false;
+            //this._trackedMap.delete(id);
         }
         
         // 4. Refresh menus
@@ -166,6 +169,7 @@ export default class InventoryManager {
         }));
     }
 
+/*
     importData(savedArray) {
         // Merge saved values into the canonical objects
         savedArray.forEach(sv => {
@@ -187,4 +191,6 @@ export default class InventoryManager {
         this.init(savedArray);
         this.refreshMenu();
     }
+ */
+ 
 }

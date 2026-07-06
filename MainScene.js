@@ -146,7 +146,21 @@ class MainScene extends Phaser.Scene {
             const itemToAdd = 'metal';
             this.inventoryManager.addItem(itemToAdd);
         });
+
+        debugFn.debugUIButton(this, 10, 750, 'Add: Wood', () => {
+            console.log('Added: Wood...');
+            const itemToAdd = 'wood';
+            this.inventoryManager.addItem(itemToAdd);
+        });
         
+        debugFn.debugUIButton(this, 10, 800, 'inventoryData', () => {
+            console.log(JSON.stringify(inventoryData, null, 2));
+        });
+
+        debugFn.debugUIButton(this, 10, 850, 'gameData', () => {
+            console.log(JSON.stringify(gameData, null, 2));
+        });   
+
         //
         
     }

@@ -3,7 +3,20 @@ export const gatherRenderer = (scene, container, item, y, menu, parentId, conten
   if (item.progress == null) item.progress = 0; // 0 → 1, increments per click
 
 //// Crafted objects will modify these
-  const clicksPerItem = item.hps || 10; // configurable "clicks to gather 1"
+
+// swtup modified effects
+// clicksPerItem adj => stone axe
+/*let clicksPerItem = item.hps || 10; // configurable "clicks to gather 1"
+
+const woodMod = scene.inventoryManager.items.find(i => i.id === 'stone_axe');
+if (woodMod.id === 'stone_axe') {
+    if (item.id === 'wood') {
+        clicksPerItem = item.hps - (woodMod.cnt * 2);
+    }
+}*/
+
+
+
   const gatherGain = 1;
 
   // Background
@@ -41,18 +54,38 @@ export const gatherRenderer = (scene, container, item, y, menu, parentId, conten
 
   container.add([bg, label, barBg, barFill, gatherGainLabel]);
 
+  const getClicksPerItem = () => {
+    let clicks = item.hps || 10;
+
+    const woodMod = scene.inventoryManager.getItem('stone_axe');
+    if (woodMod && item.id === 'wood') {
+      clicks -= woodMod.cnt * 2;
+    }
+
+    return Math.max(1, clicks);
+  };
+
   // Update function
   const updateBar = () => {
-    const progress = Math.min(1, item.progress / clicksPerItem);
+    const clicks = getClicksPerItem();
+    const progress = Math.min(1, item.progress / clicks );
     barFill.width = barWidth * progress;
+    if (clicks <= 1) {
+      barBg.setVisible(false);
+      barFill.setVisible(false);
+      return;
+    }
+    barBg.setVisible(true);
+    barFill.setVisible(true);
   };
+  
   updateBar();
 
   // Click handling
   bg.on('pointerdown', () => {
     item.progress += 1;
 
-    if (item.progress >= clicksPerItem) {
+    if (item.progress >= getClicksPerItem()) {
       item.cnt += gatherGain;          // add resource
       item.progress = 0;      // reset progress
       menu.updateItem(`${parentId}:${item.title}`); // refresh UI
@@ -93,7 +126,7 @@ export const craftRenderer = (scene, container, recipe, y, menu, parentId) => {
     menu.contentIndent + 10,
     y + 5,
     recipe.title,
-    { fontSize: '14px', color: '#ffffff' }
+    { fontSize: '14px', color: '#00ffff' }
   ).setOrigin(0, 0);
 
   // Requirement text objects
@@ -116,7 +149,7 @@ export const craftRenderer = (scene, container, recipe, y, menu, parentId) => {
       const amt = recipe.requirements[resId];
       const resItem = scene.inventoryManager.items.find(i => i.id === resId);
       const current = resItem ? resItem.cnt : 0;
-      const name = resItem ? resItem.title : resId;
+      const name = resItem ? resItem.title : '???';
 
       textObj.setText(`${name}: ${current}/${amt}`);
       textObj.setColor(current >= amt ? '#00ff00' : '#ffffff');
