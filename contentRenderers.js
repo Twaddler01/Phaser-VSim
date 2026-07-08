@@ -2,7 +2,16 @@ export const gatherRenderer = (scene, container, item, y, menu, parentId, conten
   const boxHeight = contentHeight || menu.itemHeight;
   if (item.progress == null) item.progress = 0; // 0 → 1, increments per click
 
-  const gatherGain = 1;
+  //const gatherGain = 1;
+  const getGatherGain = () => {
+    const modGather = scene.inventoryManager.items.find(i => i.mod === item.id);
+    if (modGather && modGather.cnt > 0) {
+      return modGather.gatherGain;
+    } else {
+      return 1;
+    }
+  };
+  const gatherGain = getGatherGain();
 
   // Background
   const bg = scene.add.rectangle(
@@ -42,8 +51,8 @@ export const gatherRenderer = (scene, container, item, y, menu, parentId, conten
   const getClicksPerItem = () => {
     let clicks = item.hps || 10;
 
-    const woodMod = scene.inventoryManager.getItem('stone_axe');
-    if (woodMod && item.id === 'wood') {
+    const woodMod = scene.inventoryManager.items.find(i => i.mod === 'wood');
+    if (woodMod && woodMod.cnt > 0 && item.id === 'wood') {
       clicks -= 4;
     }
 
@@ -71,7 +80,7 @@ export const gatherRenderer = (scene, container, item, y, menu, parentId, conten
     item.progress += 1;
 
     if (item.progress >= getClicksPerItem()) {
-      item.cnt += gatherGain;          // add resource
+      item.cnt += getGatherGain();          // add resource
 
 // Crafts
       if (item.id === 'wood') {
@@ -92,11 +101,14 @@ export const gatherRenderer = (scene, container, item, y, menu, parentId, conten
         // Refresh
         if (scene.inventoryMenu) {
             scene.inventoryMenu.updateItem(`All Inventory:${craftedMod.id}`);
+            scene.inventoryMenu.updateItem(`Gathering:${item.gatherGain}`);
         }
       }
       
       item.progress = 0;      // reset progress
       menu.updateItem(`${parentId}:${item.title}`); // refresh UI
+      // Check every gather
+      gatherGainLabel.setText(`+${getGatherGain()}`);
     }
 
     updateBar();
@@ -108,6 +120,7 @@ export const gatherRenderer = (scene, container, item, y, menu, parentId, conten
     updateFn: () => {
       updateBar();
       label.setText(`Gather: ${item.title}`);
+      gatherGainLabel.setText(`+${getGatherGain()}`);
     },
     height: boxHeight
   };
@@ -191,9 +204,14 @@ export const craftRenderer = (scene, container, recipe, y, menu, parentId) => {
         craftItem.cnt + 1
       );
     }
-
+    
     // Refresh UI
     updateLabel();
+    // Update craft mods
+    const modRes = scene.inventoryManager.items.find(i => i.id === recipe.mod);
+    if (modRes) {
+      menu.updateItem(`Gathering:${modRes.title}`);
+    }
   };
 
   bg.on('pointerdown', handlePurchase);
