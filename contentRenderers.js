@@ -51,8 +51,8 @@ export const gatherRenderer = (scene, container, item, y, menu, parentId, conten
   const getClicksPerItem = () => {
     let clicks = item.hps || 10;
 
-    const woodMod = scene.inventoryManager.items.find(i => i.mod === 'wood');
-    if (woodMod && woodMod.cnt > 0 && item.id === 'wood') {
+    const itemMod = scene.inventoryManager.items.find(i => i.mod === item.id);
+    if (itemMod && itemMod.cnt > 0 && item.id === itemMod.mod) {
       clicks -= 4;
     }
 
@@ -83,9 +83,9 @@ export const gatherRenderer = (scene, container, item, y, menu, parentId, conten
       item.cnt += getGatherGain();          // add resource
 
 // Crafts
-      if (item.id === 'wood') {
-        // Find crafted item that modifies wood
-        const craftedMod = scene.inventoryManager.items.find(i => i.mod === item.id);
+      const craftedMod = scene.inventoryManager.items.find(i => i.mod === item.id);
+      if (craftedMod && craftedMod.mod === item.id) {
+        // Find crafted item that modifies other item
         if (craftedMod.cnt > 0) {
           craftedMod.cdur -= 5;
           if (craftedMod.cdur <= 0) {
@@ -93,6 +93,9 @@ export const gatherRenderer = (scene, container, item, y, menu, parentId, conten
             craftedMod.cnt -= 1;
             if (craftedMod.cnt > 0) {
               craftedMod.cdur = craftedMod.dur;
+            } else {
+              // WIP
+              if (scene.inventoryMenu) scene.inventoryMenu.render();
             }
           }
         } else {
@@ -131,7 +134,9 @@ export const craftRenderer = (scene, container, recipe, y, menu, parentId) => {
   const reqCount = Object.keys(recipe.requirements || {}).length;
   const lineHeight = 18; // height per requirement line
   const titleHeight = 20;
-  const boxHeight = titleHeight + (reqCount * lineHeight) + 10;
+  const descHeight = recipe.desc ? lineHeight : 0;
+  const desc2Height = recipe.desc2 ? lineHeight : 0;
+  const boxHeight = titleHeight + descHeight + desc2Height + (reqCount * lineHeight) + 10;
 
   // Background
   const bg = scene.add.rectangle(
@@ -149,13 +154,34 @@ export const craftRenderer = (scene, container, recipe, y, menu, parentId) => {
     recipe.title,
     { fontSize: '14px', color: '#00ffff' }
   ).setOrigin(0, 0);
+  
+  // Description
+  y += recipe.desc ? lineHeight : 0;
+  const descLabel = scene.add.text(
+    menu.contentIndent + 10,
+    y + 5,
+    recipe?.desc,
+    { fontSize: '12px', color: '#ffff00' }
+  ).setOrigin(0, 0);
+  descLabel.setVisible(recipe.desc != null);
+
+  // Description 2
+  y += recipe.desc2 ? lineHeight : 0;
+  const desc2Label = scene.add.text(
+    menu.contentIndent + 10,
+    y + 5,
+    recipe?.desc2,
+    { fontSize: '12px', color: '#ffff00' }
+  ).setOrigin(0, 0);
+  desc2Label.setVisible(recipe.desc2 != null);
 
   // Requirement text objects
+  y += 5;
   const reqLabels = [];
   Object.entries(recipe.requirements || {}).forEach(([resId], idx) => {
     const reqLabel = scene.add.text(
       menu.contentIndent + 10,
-      y + 23 + idx * 18,
+      y + lineHeight + idx * 18,
       '',
       { fontSize: '14px', color: '#ffffff' }
     ).setOrigin(0, 0);
@@ -199,10 +225,18 @@ export const craftRenderer = (scene, container, recipe, y, menu, parentId) => {
     // Add crafted item
     const craftItem = scene.inventoryManager.items.find(i => i.id === recipe.id);
     if (craftItem) {
+      const wasEmpty = craftItem.cnt === 0;
+    
       craftItem.cnt = Math.min(
         craftItem.max ?? Infinity,
         craftItem.cnt + 1
       );
+    
+      if (wasEmpty) {
+        craftItem.cdur = craftItem.dur;
+      }
+    
+      if (scene.inventoryMenu) scene.inventoryMenu.render();
     }
     
     // Refresh UI
@@ -217,19 +251,22 @@ export const craftRenderer = (scene, container, recipe, y, menu, parentId) => {
   bg.on('pointerdown', handlePurchase);
 
   // Add all elements to container
-  container.add([bg, titleLabel, ...reqLabels.map(r => r.textObj)]);
+  container.add([bg, titleLabel, descLabel, desc2Label, ...reqLabels.map(r => r.textObj)]);
 
   updateLabel();
 
   return {
     key: `${parentId}:${recipe.title}`,
-    elements: [bg, titleLabel, ...reqLabels.map(r => r.textObj)],
+    elements: [bg, titleLabel, descLabel, desc2Label, ...reqLabels.map(r => r.textObj)],
     updateFn: updateLabel,
     height: boxHeight
   };
 };
 
 export const inventoryRenderer = (scene, container, item, y, menu, parentId, contentHeight) => {
+  if (item.type === 'crafts' && item.cnt < 1) {
+    return;
+  }
   const boxHeight = contentHeight || menu.itemHeight;
 
   // Type-based colors
