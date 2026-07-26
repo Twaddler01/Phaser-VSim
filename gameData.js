@@ -36,3 +36,9 @@ export const inventoryData = [
     { type: 'crafts', id: 'campfire', title: 'Campfire', cnt: 0, requirements: { wood: 5, stone: 2 }, cdur: 100, dur: 100, gatherGain: 1, unlocked: true },
     { type: 'crafts', id: 'wooden_spear', title: 'Wooden Spear', cnt: 0, requirements: { wood: 8 }, cdur: 100, dur: 100, gatherGain: 1, unlocked: true }
 ];
+
+export const playerData = [
+    { id: 'hunger', title: 'Hunger', val: 100 },
+    { id: 'thirst', title: 'Thirst', val: 100 },
+    { id: 'warmth', title: 'Warmth', val: 100 }
+];

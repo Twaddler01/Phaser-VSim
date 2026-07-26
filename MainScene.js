@@ -1,6 +1,7 @@
 import MenuSystem from './MenuSystem.js';
 import { gatherRenderer, craftRenderer, inventoryRenderer } from  './contentRenderers.js';
 import InventoryManager from './InventoryManager.js';
+import PlayerStatusManager from './PlayerStatusManager.js';
 import { menuData, inventoryData } from './gameData.js';
 import SaveManager from './SaveManager.js';
 
@@ -60,6 +61,7 @@ class MainScene extends Phaser.Scene {
         // inventory Menu
         this.inventoryMenu = new MenuSystem(this, {
             x: 10,
+            y: 200,
             contentIndent: 0,
             id: 'Inventory',
             data: { 
@@ -74,8 +76,12 @@ class MainScene extends Phaser.Scene {
             }
         });
 
-
+        // NEW -- No renderer
+        this.playerStatusManager = new PlayerStatusManager(this, this.inventoryMenu);
+        
         this.debugUI();
+        
+        this.playerStatusManager.set('thirst', 50);
 
     } // create()
 

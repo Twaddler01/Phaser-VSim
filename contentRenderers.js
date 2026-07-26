@@ -81,6 +81,10 @@ export const gatherRenderer = (scene, container, item, y, menu, parentId, conten
 
     if (item.progress >= getClicksPerItem()) {
       item.cnt += getGatherGain();          // add resource
+// Uses hunger/thirst
+      if (scene.playerStatusManager) {
+        scene.playerStatusManager.processGather();
+      }
 
 // Crafts
       const craftedMod = scene.inventoryManager.items.find(i => i.mod === item.id);
