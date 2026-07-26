@@ -2,13 +2,14 @@ import MenuSystem from './MenuSystem.js';
 import { gatherRenderer, craftRenderer, inventoryRenderer } from  './contentRenderers.js';
 import InventoryManager from './InventoryManager.js';
 import PlayerStatusManager from './PlayerStatusManager.js';
-import { menuData, inventoryData } from './gameData.js';
+import { menuData, inventoryData, playerData } from './gameData.js';
 import SaveManager from './SaveManager.js';
 
 // Pass the actual arrays to be saved — for menuData pass the `.parent` array directly
 const gameData = {
     menuData: menuData.parent,
     inventoryData,
+    playerData
 };
 
 // `000`
@@ -81,8 +82,6 @@ class MainScene extends Phaser.Scene {
         
         this.debugUI();
         
-        this.playerStatusManager.set('thirst', 50);
-
     } // create()
 
     debugUI() {
@@ -165,6 +164,12 @@ class MainScene extends Phaser.Scene {
 
         debugFn.debugUIButton(this, 10, 850, 'gameData', () => {
             console.log(JSON.stringify(gameData, null, 2));
+        });   
+        
+        debugFn.debugUIButton(this, 10, 900, 'Eat food', () => {
+          const food = this.inventoryManager.items.find(i => i.id === 'food');
+          food.cnt -= 2;
+          this.inventoryManager.refreshMenu();
         });   
 
         //

@@ -24,6 +24,8 @@ export const menuData = {
 };
 
 export const inventoryData = [
+      // Player stats
+    { type: 'stats', id: 'food', title: 'Food', cnt: 0, max: 10, progress: 0, hps: 10, unlocked: true },
     // Resources
     { type: 'resource', id: 'fiber', title: 'Fiber', cnt: 0, max: 500, progress: 0, hps: 5, unlocked: true },
     { type: 'resource', id: 'wood', title: 'Wood', cnt: 0, max: 500, progress: 0, hps: 10, unlocked: true },

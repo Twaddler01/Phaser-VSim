@@ -39,6 +39,14 @@ export const gatherRenderer = (scene, container, item, y, menu, parentId, conten
   const barFill = scene.add.rectangle(barStartX, y + boxHeight / 2, 0, barHeight, 0x00ff00)
     .setOrigin(0, 0.5);
 
+  const fullLabel = scene.add.text(
+    barStartX,
+    y + boxHeight / 2,
+    `(Full Inventory)`,
+    { fontSize: '14px', color: '#fff' }
+  ).setOrigin(0, 0.5);
+  fullLabel.setVisible(false);
+
   const gatherGainLabel = scene.add.text(
     barStartX + barWidth + 10,
     y + boxHeight / 2,
@@ -46,7 +54,7 @@ export const gatherRenderer = (scene, container, item, y, menu, parentId, conten
     { fontSize: '14px', color: '#fff' }
   ).setOrigin(0, 0.5);
 
-  container.add([bg, label, barBg, barFill, gatherGainLabel]);
+  container.add([bg, label, barBg, barFill, gatherGainLabel, fullLabel]);
 
   const getClicksPerItem = () => {
     let clicks = item.hps || 10;
@@ -69,6 +77,20 @@ export const gatherRenderer = (scene, container, item, y, menu, parentId, conten
       barFill.setVisible(false);
       return;
     }
+    
+    // Full Inventory
+    fullLabel.setVisible(item.cnt >= item.max);
+    if (item.cnt >= item.max) {
+      barBg.setVisible(false);
+      barFill.setVisible(false);
+      gatherGainLabel.setText('');
+      bg.setFillStyle(0x800000);
+      item.progress = 0;
+      item.cnt = item.max;
+      return;
+    }
+    bg.setFillStyle(0x225522);
+    
     barBg.setVisible(true);
     barFill.setVisible(true);
   };
@@ -79,13 +101,12 @@ export const gatherRenderer = (scene, container, item, y, menu, parentId, conten
   bg.on('pointerdown', () => {
     item.progress += 1;
 
-    if (item.progress >= getClicksPerItem()) {
+    if (item.progress >= getClicksPerItem() && item.cnt < item.max) {
       item.cnt += getGatherGain();          // add resource
 // Uses hunger/thirst
       if (scene.playerStatusManager) {
         scene.playerStatusManager.processGather();
       }
-
 // Crafts
       const craftedMod = scene.inventoryManager.items.find(i => i.mod === item.id);
       if (craftedMod && craftedMod.mod === item.id) {
@@ -295,8 +316,8 @@ export const inventoryRenderer = (scene, container, item, y, menu, parentId, con
     .setOrigin(0, 0.5);
   const barFill = scene.add.rectangle(menu.contentIndent + 80, y + boxHeight / 2, 100 * progress, 12, 0x00ff00)
     .setOrigin(0, 0.5);
-  barBg.setVisible(item.max != null);
-  barFill.setVisible(item.max != null);
+  barBg.setVisible(item.max != null && item.cnt != item.max);
+  barFill.setVisible(item.max != null && item.cnt != item.max);
   
   const label = scene.add.text(
     menu.contentIndent + 10, y + boxHeight / 2,
@@ -326,7 +347,29 @@ export const inventoryRenderer = (scene, container, item, y, menu, parentId, con
     { fontSize: '14px', color: '#fff' }
   ).setOrigin(1, 0.5);
 
-  container.add([bg, barBg, barFill, label, labelAmt, d_barBg, d_barFill]);
+  const eatButton = scene.add.rectangle(menu.contentIndent + 80, y + boxHeight / 2, 75, 20, 0x225522)
+    .setOrigin(0, 0.5).setInteractive();
+  eatButton.setVisible(item.id === 'food' && item.cnt === item.max);
+  
+  const handleEat = () => {
+    const food = scene.inventoryManager.items.find(i => i.id === 'food');
+    food.cnt -= 10;
+    scene.inventoryManager.refreshMenu();
+    scene.playerStatusManager.processEat();
+  };
+  
+  const eatLabel = scene.add.text(
+    menu.contentIndent + 85, y + boxHeight / 2,
+    'Eat Food',
+    { fontSize: '14px', color: '#fff' }
+  ).setOrigin(0, 0.5);
+  eatLabel.setVisible(item.id === 'food' && item.cnt === item.max);
+  
+  if (item.id === 'food') {
+    eatButton.on('pointerdown', handleEat);
+  }
+
+  container.add([bg, barBg, barFill, label, labelAmt, d_barBg, d_barFill, eatButton, eatLabel]);
 
   return {
     key: `${parentId}:${item.id}`,
@@ -343,6 +386,13 @@ export const inventoryRenderer = (scene, container, item, y, menu, parentId, con
       }
       label.setText(`${item.title}`);
       labelAmt.setText(item.max != null ? `${item.cnt} / ${item.max}` : `${item.cnt}`);
+      // Food
+      if (item.id === 'food') {
+        barBg.setVisible(item.max != null && item.cnt != item.max);
+        barFill.setVisible(item.max != null && item.cnt != item.max);
+        eatButton.setVisible(item.cnt === item.max);
+        eatLabel.setVisible(item.id === 'food' && item.cnt === item.max);
+      }
     }
   };
 };

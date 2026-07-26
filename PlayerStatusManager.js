@@ -73,6 +73,18 @@ export default class PlayerStatusManager {
       };
       statusBars();
       
+      let hunger = this.get('hunger');
+      let thirst = this.get('thirst');
+      let warmth = this.get('warmth');
+      this.set('hunger', hunger);
+      this.set('thirst', thirst);
+      this.set('warmth', warmth);
+      
+    }
+
+    processEat() {
+      let hunger = this.get('hunger');
+      this.set('hunger', hunger + 10);
     }
 
     processGather() {
@@ -102,6 +114,10 @@ export default class PlayerStatusManager {
         const stat = playerData.find(s => s.id === id);
         if (!stat) return;
         stat.val = value;
+        if (stat.val > 100) {
+          stat.val = 100;
+          value = 100;
+        }
         this.updateValue(id, value);
     }
 }
