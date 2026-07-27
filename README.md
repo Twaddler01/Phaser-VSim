@@ -7,4 +7,4 @@ TEST URL: Soon!
 
 ### WIP
 - Completely new structure.
-- Working on live dynamic menu and inventory modifications
+- Working on game dynamics.
