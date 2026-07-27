@@ -80,13 +80,13 @@ class MainScene extends Phaser.Scene {
         // NEW -- No renderer
         this.playerStatusManager = new PlayerStatusManager(this, this.inventoryMenu);
         
-        this.debugUI();
+        this.debugUI(700, 10);
         
     } // create()
 
-    debugUI() {
+    debugUI(debugX, debugY) {
         const debugFn = {
-            debugUITitle(scene, x, y) {
+            debugUITitle(scene) {
                 const titleBg = scene.add.rectangle(0, 0, 180, 40, 0x333333).setOrigin(0);
                 const titleText = scene.add.text(10, titleBg.height / 2, 'DEBUG BUTTONS:', {
                     fontSize: '20px',
@@ -94,10 +94,10 @@ class MainScene extends Phaser.Scene {
                     fontStyle: 'bold',
                 }).setOrigin(0, 0.5);
             
-                return scene.add.container(x, y, [titleBg, titleText]);
+                return scene.add.container(debugX, debugY, [titleBg, titleText]);
             },
         
-            debugUIButton(scene, x, y, label, onClick) {
+            debugUIButton(scene, label, onClick) {
                 const bg = scene.add.rectangle(0, 0, 180, 40, 0x333333)
                     .setOrigin(0)
                     .setInteractive({ useHandCursor: true })
@@ -114,18 +114,19 @@ class MainScene extends Phaser.Scene {
                     color: '#fff'
                 }).setOrigin(0, 0.5);
                 
-                return scene.add.container(x, y, [bg, border, text]);
+                debugY += 50;
+                return scene.add.container(debugX, debugY, [bg, border, text]);
             }
         };
         
-        debugFn.debugUITitle(this, 10, 450);
+        debugFn.debugUITitle(this);
         
-        debugFn.debugUIButton(this, 10, 500, 'Add: New Menu', () => {
+        debugFn.debugUIButton(this, 'Add: New Menu', () => {
             console.log('Added: New Menu...');
             this.menu.addParentMenu('New Menu');
         });
         
-        debugFn.debugUIButton(this, 10, 550, 'Add: New Menu Content', () => {
+        debugFn.debugUIButton(this, 'Add: New Menu Content', () => {
             console.log('Added: New Menu Content');
             this.menu.addContentToParent('New Menu', { 
                 id: 'menu3content1', 
@@ -136,37 +137,37 @@ class MainScene extends Phaser.Scene {
             });
         });
         
-        debugFn.debugUIButton(this, 10, 600, 'Renove: New Menu', () => {
+        debugFn.debugUIButton(this, 'Renove: New Menu', () => {
             console.log('Renoved: New Menu...');
             this.menu.removeParentMenu('New Menu');
         });
-
-        debugFn.debugUIButton(this, 10, 650, 'Renove: Wood', () => {
+        
+        debugFn.debugUIButton(this, 'Renove: Wood', () => {
             console.log('Renoved: Wood...');
             this.inventoryManager.removeItem('wood');
         });
         
-        debugFn.debugUIButton(this, 10, 700, 'Add: Metal', () => {
+        debugFn.debugUIButton(this, 'Add: Metal', () => {
             console.log('Added: Metal...');
             const itemToAdd = 'metal';
             this.inventoryManager.addItem(itemToAdd);
         });
-
-        debugFn.debugUIButton(this, 10, 750, 'Add: Wood', () => {
+        
+        debugFn.debugUIButton(this, 'Add: Wood', () => {
             console.log('Added: Wood...');
             const itemToAdd = 'wood';
             this.inventoryManager.addItem(itemToAdd);
         });
         
-        debugFn.debugUIButton(this, 10, 800, 'inventoryData', () => {
+        debugFn.debugUIButton(this, 'inventoryData', () => {
             console.log(JSON.stringify(inventoryData, null, 2));
         });
-
-        debugFn.debugUIButton(this, 10, 850, 'gameData', () => {
+        
+        debugFn.debugUIButton(this, 'gameData', () => {
             console.log(JSON.stringify(gameData, null, 2));
         });   
         
-        debugFn.debugUIButton(this, 10, 900, 'Eat food', () => {
+        debugFn.debugUIButton(this, 'Eat food', () => {
           const food = this.inventoryManager.items.find(i => i.id === 'food');
           food.cnt -= 2;
           this.inventoryManager.refreshMenu();

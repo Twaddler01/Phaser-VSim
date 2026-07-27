@@ -371,28 +371,30 @@ export const inventoryRenderer = (scene, container, item, y, menu, parentId, con
 
   container.add([bg, barBg, barFill, label, labelAmt, d_barBg, d_barFill, eatButton, eatLabel]);
 
+  const updateDisplay = () => {
+    const newProgress = Math.min(1, item.cnt / item.max);
+    barFill.width = 100 * newProgress;
+    const newDur = Math.min(1, item.cdur / item.dur);
+    d_barFill.width = 100 * newDur;
+    if (item.type === 'crafts') {
+      const craftItem = scene.inventoryManager.items.find(i => i.id === item.id);
+      d_barBg.setVisible(craftItem && craftItem.cnt > 0);
+      d_barFill.setVisible(craftItem && craftItem.cnt > 0);
+    }
+    label.setText(`${item.title}`);
+    labelAmt.setText(item.max != null ? `${item.cnt} / ${item.max}` : `${item.cnt}`);
+    // Food
+    if (item.id === 'food') {
+      barBg.setVisible(item.max != null && item.cnt != item.max);
+      barFill.setVisible(item.max != null && item.cnt != item.max);
+      eatButton.setVisible(item.cnt === item.max);
+      eatLabel.setVisible(item.id === 'food' && item.cnt === item.max);
+    }
+  };
+
   return {
     key: `${parentId}:${item.id}`,
     elements: [bg, barBg, barFill, label, labelAmt, d_barBg, d_barFill],
-    updateFn: () => {
-      const newProgress = Math.min(1, item.cnt / item.max);
-      barFill.width = 100 * newProgress;
-      const newDur = Math.min(1, item.cdur / item.dur);
-      d_barFill.width = 100 * newDur;
-      if (item.type === 'crafts') {
-        const craftItem = scene.inventoryManager.items.find(i => i.id === item.id);
-        d_barBg.setVisible(craftItem && craftItem.cnt > 0);
-        d_barFill.setVisible(craftItem && craftItem.cnt > 0);
-      }
-      label.setText(`${item.title}`);
-      labelAmt.setText(item.max != null ? `${item.cnt} / ${item.max}` : `${item.cnt}`);
-      // Food
-      if (item.id === 'food') {
-        barBg.setVisible(item.max != null && item.cnt != item.max);
-        barFill.setVisible(item.max != null && item.cnt != item.max);
-        eatButton.setVisible(item.cnt === item.max);
-        eatLabel.setVisible(item.id === 'food' && item.cnt === item.max);
-      }
-    }
+    updateFn: updateDisplay
   };
 };
