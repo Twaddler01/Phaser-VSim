@@ -63,6 +63,14 @@ export const gatherRenderer = (scene, container, item, y, menu, parentId, conten
     if (itemMod && itemMod.cnt > 0 && item.id === itemMod.mod) {
       clicks -= 4;
     }
+    
+    if (scene.playerStatusManager && scene.playerStatusManager.starveActive) {
+      clicks *= 1.5;
+    }
+    
+    if (scene.playerStatusManager && scene.playerStatusManager.dehydActive) {
+      clicks *= 2;
+    }
 
     return Math.max(1, clicks);
   };
@@ -347,29 +355,45 @@ export const inventoryRenderer = (scene, container, item, y, menu, parentId, con
     { fontSize: '14px', color: '#fff' }
   ).setOrigin(1, 0.5);
 
-  const eatButton = scene.add.rectangle(menu.contentIndent + 80, y + boxHeight / 2, 75, 20, 0x225522)
-    .setOrigin(0, 0.5).setInteractive();
-  eatButton.setVisible(item.id === 'food' && item.cnt === item.max);
+  // Consuming inventory (stats)
+  const statButton = scene.add.rectangle(
+    menu.contentIndent + 80,
+    y + boxHeight / 2,
+    75,
+    20,
+    0x225522
+  )
+  .setOrigin(0, 0.5)
+  .setInteractive();
   
-  const handleEat = () => {
-    const food = scene.inventoryManager.items.find(i => i.id === 'food');
-    food.cnt -= 10;
+  const statLabel = scene.add.text(
+    menu.contentIndent + 85,
+    y + boxHeight / 2,
+    ({
+      food: "Eat ",
+      water: "Drink "
+    }[item.id] || "") + item.title,
+    { fontSize: "14px", color: "#fff" }
+  ).setOrigin(0, 0.5);
+  
+  statButton.on("pointerdown", () => {
+    item.cnt -= item.max;
     scene.inventoryManager.refreshMenu();
-    scene.playerStatusManager.processEat();
+    scene.playerStatusManager.processConsume(item.id);
+  });
+  
+  const checkStats = () => {
+    const show =
+      item.type === "stats" &&
+      item.cnt === item.max;
+  
+    statButton.setVisible(show);
+    statLabel.setVisible(show);
   };
   
-  const eatLabel = scene.add.text(
-    menu.contentIndent + 85, y + boxHeight / 2,
-    'Eat Food',
-    { fontSize: '14px', color: '#fff' }
-  ).setOrigin(0, 0.5);
-  eatLabel.setVisible(item.id === 'food' && item.cnt === item.max);
-  
-  if (item.id === 'food') {
-    eatButton.on('pointerdown', handleEat);
-  }
+  checkStats();
 
-  container.add([bg, barBg, barFill, label, labelAmt, d_barBg, d_barFill, eatButton, eatLabel]);
+  container.add([bg, barBg, barFill, label, labelAmt, d_barBg, d_barFill, statButton, statLabel]);
 
   const updateDisplay = () => {
     const newProgress = Math.min(1, item.cnt / item.max);
@@ -383,13 +407,9 @@ export const inventoryRenderer = (scene, container, item, y, menu, parentId, con
     }
     label.setText(`${item.title}`);
     labelAmt.setText(item.max != null ? `${item.cnt} / ${item.max}` : `${item.cnt}`);
-    // Food
-    if (item.id === 'food') {
-      barBg.setVisible(item.max != null && item.cnt != item.max);
-      barFill.setVisible(item.max != null && item.cnt != item.max);
-      eatButton.setVisible(item.cnt === item.max);
-      eatLabel.setVisible(item.id === 'food' && item.cnt === item.max);
-    }
+    barBg.setVisible(item.max != null && item.cnt != item.max);
+    barFill.setVisible(item.max != null && item.cnt != item.max);
+    checkStats();
   };
 
   return {

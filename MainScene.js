@@ -167,10 +167,28 @@ class MainScene extends Phaser.Scene {
             console.log(JSON.stringify(gameData, null, 2));
         });   
         
-        debugFn.debugUIButton(this, 'Eat food', () => {
-          const food = this.inventoryManager.items.find(i => i.id === 'food');
-          food.cnt -= 2;
-          this.inventoryManager.refreshMenu();
+        debugFn.debugUIButton(this, 'Sub 1 hunger', () => {
+          let hunger = this.playerStatusManager.get('hunger');
+          hunger -= 1;
+          this.playerStatusManager.set('hunger', hunger)
+        });   
+        
+        debugFn.debugUIButton(this, 'Sub 1 thirst', () => {
+          let thirst = this.playerStatusManager.get('thirst');
+          thirst -= 1;
+          this.playerStatusManager.set('thirst', thirst)
+        });   
+        
+        debugFn.debugUIButton(this, 'Sub 10 hunger', () => {
+          let hunger = this.playerStatusManager.get('hunger');
+          hunger -= 10;
+          this.playerStatusManager.set('hunger', hunger)
+        });   
+
+        debugFn.debugUIButton(this, 'Sub 10 thirst', () => {
+          let thirst = this.playerStatusManager.get('thirst');
+          thirst -= 10;
+          this.playerStatusManager.set('thirst', thirst)
         });   
 
         //

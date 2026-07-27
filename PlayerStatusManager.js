@@ -1,10 +1,13 @@
 import { playerData } from './gameData.js';
+import { gatherRenderer } from  './contentRenderers.js';
 
 export default class PlayerStatusManager {
     constructor(scene, inventoryMenu) {
         this.scene = scene;
         this.inventoryMenu = inventoryMenu;
         this.statusBars = {};
+        this.starveActive = false;
+        this.dehydActive = false;
         
         this.render();
     }
@@ -82,9 +85,17 @@ export default class PlayerStatusManager {
       
     }
 
-    processEat() {
-      let hunger = this.get('hunger');
-      this.set('hunger', hunger + 10);
+    processConsume(id) {
+      const consumed = [
+        { id: 'food', link: 'hunger', gain: 10, effect: 'starveActive' },
+        { id: 'water', link: 'thirst', gain: 20, effect: 'dehydActive' }
+      ];
+      const match = consumed.find(i => i.id === id);
+      if (!match) return;
+      
+      let currVal = this.get(match.link);
+      this.set(match.link, currVal + match.gain);
+      this[match.effect] = false;
     }
 
     processGather() {
@@ -92,6 +103,21 @@ export default class PlayerStatusManager {
       let thirst = this.get('thirst');
       hunger -= 0.2;
       thirst -= 0.5;
+      
+      if (hunger < 0) {
+        hunger = 0;
+        this.starveActive = true;
+      } else {
+        this.starveActive = false;
+      }
+      
+      if (thirst < 0) {
+        thirst = 0;
+        this.dehydActive = true;
+      } else {
+        this.dehydActive = false;
+      }
+      
       this.set('hunger', hunger);
       this.set('thirst', thirst);
     }
@@ -107,17 +133,15 @@ export default class PlayerStatusManager {
 
     get(id) {
         const stat = playerData.find(s => s.id === id);
-        return stat.val;
+        if (stat) return stat.val;
     }
 
     set(id, value) {
         const stat = playerData.find(s => s.id === id);
         if (!stat) return;
-        stat.val = value;
-        if (stat.val > 100) {
-          stat.val = 100;
-          value = 100;
-        }
+        // Set min at 0, max at 100
+        stat.val = Math.max(0, Math.min(100, value));
+        value = Math.max(0, Math.min(100, value));
         this.updateValue(id, value);
     }
 }
