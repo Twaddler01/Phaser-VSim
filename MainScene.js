@@ -1,5 +1,5 @@
 import MenuSystem from './MenuSystem.js';
-import { gatherRenderer, craftRenderer, inventoryRenderer } from  './contentRenderers.js';
+import { gatherRenderer, craftRenderer, inventoryRenderer, resRenderer } from  './contentRenderers.js';
 import InventoryManager from './InventoryManager.js';
 import PlayerStatusManager from './PlayerStatusManager.js';
 import { menuData, inventoryData, playerData } from './gameData.js';
@@ -50,7 +50,8 @@ class MainScene extends Phaser.Scene {
           contentIndent: 0,
           renderers: {
             gather: gatherRenderer,
-            craft: craftRenderer
+            craft: craftRenderer,
+            research: resRenderer
           }
         });
         

@@ -77,7 +77,9 @@ export default class MenuSystem {
             if (this.expandedParents.has(parent.id) && Array.isArray(parent.content)) {
                 const unlockedContent = parent.content.filter(c => c.unlocked || c.type === 'default');
                 unlockedContent.forEach(item => {
+                    // Exclude since excluding inventory display -- see inventoryRenderer
                     if (parent.type === 'inventory' && item.type === 'crafts' && item.cnt < 1) return;
+                    if (parent.type === 'inventory' && item.type === 'res') return;
                     const type = parent.type && this.renderers[parent.type]
                         ? parent.type
                         : "default";

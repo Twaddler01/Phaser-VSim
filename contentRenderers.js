@@ -297,9 +297,10 @@ export const craftRenderer = (scene, container, recipe, y, menu, parentId) => {
 };
 
 export const inventoryRenderer = (scene, container, item, y, menu, parentId, contentHeight) => {
-  if (item.type === 'crafts' && item.cnt < 1) {
-    return;
-  }
+  // Exclude these from inventory display
+  if (item.type === 'crafts' && item.cnt < 1) return;
+  if (item.type === 'res') return;
+  
   const boxHeight = contentHeight || menu.itemHeight;
 
   // Type-based colors
@@ -417,4 +418,76 @@ export const inventoryRenderer = (scene, container, item, y, menu, parentId, con
     elements: [bg, barBg, barFill, label, labelAmt, d_barBg, d_barFill],
     updateFn: updateDisplay
   };
+};
+
+export const resRenderer = (scene, container, res, y, menu, parentId, contentHeight) => {
+
+  const reqCount = Object.keys(res.requirements || {}).length;
+  const lineHeight = 18; // height per requirement line
+  const titleHeight = 20;
+  const boxHeight = titleHeight + (reqCount * lineHeight) + 10;
+
+  // Background
+  const bg = scene.add.rectangle(
+    menu.contentIndent,
+    y,
+    menu.width - menu.contentIndent,
+    boxHeight,
+    0x444444
+  ).setOrigin(0).setInteractive();
+
+  // Title
+  const titleLabel = scene.add.text(
+    menu.contentIndent + 10,
+    y + 5,
+    res.title,
+    { fontSize: '14px', color: '#00ffff' }
+  ).setOrigin(0, 0);
+
+  // Requirement text objects
+  y += 5;
+  const reqLabels = [];
+  Object.entries(res.requirements || {}).forEach(([resId], idx) => {
+    const reqLabel = scene.add.text(
+      menu.contentIndent + 10,
+      y + lineHeight + idx * 18,
+      '',
+      { fontSize: '14px', color: '#ffffff' }
+    ).setOrigin(0, 0);
+    reqLabels.push({ resId, textObj: reqLabel });
+  });
+
+  // Check & update display
+  const updateLabel = () => {
+    let allMet = true;
+
+    reqLabels.forEach(({ resId, textObj }) => {
+      const amt = res.requirements[resId];
+      const resItem = scene.inventoryManager.items.find(i => i.id === resId);
+      const current = resItem ? resItem.cnt : 0;
+      const name = resItem ? resItem.title : '???';
+
+      textObj.setText(`${name}: ${current}/${amt}`);
+      textObj.setColor(current >= amt ? '#00ff00' : '#ffffff');
+
+      if (current < amt) {
+        allMet = false;
+      }
+    });
+
+    bg.setFillStyle(allMet ? 0x225522 : 0x444444);
+    return allMet;
+  };
+
+  container.add([bg, titleLabel, ...reqLabels.map(r => r.textObj)]);
+
+  updateLabel();
+  
+  return {
+    key: `${parentId}:${res.title}`,
+    elements: [bg, titleLabel],
+    updateFn: updateLabel,
+    height: boxHeight
+  };
+
 };

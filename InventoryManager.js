@@ -54,9 +54,9 @@ export default class InventoryManager {
         // Update gather menu item (title used for display key)
         this.menu.updateItem(`Gathering:${item.title}`);
         
-        // Update all craft menu items that depend on this resource's id
+        // Update all craft/research menu items that depend on this resource's id
         this.menu.data.parent
-            .filter(p => p.type === 'craft')
+            .filter(p => p.type === 'craft' || p.type === 'research')
             .forEach(parent => {
                 parent.content.forEach(recipe => {
                     if (recipe.requirements && recipe.requirements[item.id] !== undefined) {
@@ -142,12 +142,14 @@ export default class InventoryManager {
         // Gather resources
         const resources = this.items.filter(i => i.type === 'resource' || i.type === 'stats' && i.unlocked);
         const crafts = this.items.filter(i => i.type === 'crafts' && i.unlocked);
+        const res = this.items.filter(i => i.type === 'res' && i.unlocked);
         
         // Assign directly to menu data
         const parentData = this.menu.data.parent;
         
         const gatherMenu = parentData.find(p => p.id === 'Gathering');
         const craftMenu = parentData.find(p => p.id === 'Crafting');
+        const resMenu = parentData.find(p => p.id === 'Research');
         
         if (gatherMenu) {
             gatherMenu.content = resources;
@@ -155,6 +157,10 @@ export default class InventoryManager {
         
         if (craftMenu) {
             craftMenu.content = crafts;
+        }
+        
+        if (resMenu) {
+          resMenu.content = res;
         }
         
         // Now trigger menu refresh

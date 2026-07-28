@@ -19,7 +19,8 @@
 export const menuData = {
   parent: [
     { id: 'Gathering', type: 'gather', content: [] },
-    { id: 'Crafting', type: 'craft', content: [] }
+    { id: 'Crafting', type: 'craft', content: [] },
+    { id: 'Research', type: 'research', content: [] }
   ]
 };
 
@@ -39,6 +40,8 @@ export const inventoryData = [
     { type: 'crafts', id: 'wooden_spear', title: 'Wooden Spear', cnt: 0, requirements: { wood: 8 }, cdur: 100, dur: 100, mod: 'food', gatherGain: 3, unlocked: true },
     { type: 'crafts', id: 'well', title: 'Well', cnt: 0, requirements: { wood: 5, stone: 20 }, cdur: 100, dur: 100, mod: 'water', gatherGain: 3, unlocked: true },
     { type: 'crafts', id: 'campfire', title: 'Campfire', cnt: 0, requirements: { wood: 5, stone: 2 }, cdur: 100, dur: 100, gatherGain: 1, unlocked: true },
+    // Research
+    { type: 'res', id: 'town_hall', title: 'Town Hall', desc: 'Establish a Town Hall.', cnt: 0, requirements: { wood: 100, stone: 100 }, unlocked: true },
 ];
 
 export const playerData = [
