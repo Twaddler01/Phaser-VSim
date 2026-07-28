@@ -18,6 +18,7 @@
  * @type {MenuData}
  */
 
+// Menu structure
 export const menuData = {
   parent: [
     { id: 'Gathering', type: 'gather', content: [] },
@@ -26,7 +27,8 @@ export const menuData = {
   ]
 };
 
-export const inventoryData = [
+// Data (menu depends on)
+export const objData = [
       // Player stats
     { type: 'stats', id: 'food', title: 'Food', cnt: 0, max: 10, progress: 0, hps: 10, unlocked: true },
     { type: 'stats', id: 'water', title: 'Water', cnt: 0, max: 5, progress: 0, hps: 10, unlocked: true },
@@ -50,15 +52,18 @@ export const inventoryData = [
     { type: 'res', id: 'iron_axe', title: 'Iron Axe', desc: 'Learn how to craft an Iron Axe.', cnt: 0, requirements: { wood: 50, stone: 50 }, unlocked: false },
 ];
 
+// Data for PlayerStatusManager
 export const playerData = [
     { id: 'hunger', title: 'Hunger', val: 100 },
     { id: 'thirst', title: 'Thirst', val: 100 },
     { id: 'warmth', title: 'Warmth', val: 100 }
 ];
 
+// Saved data fields for objData 
 export const saveFields = {
     stats: ['cnt', 'unlocked'],
     resource: ['cnt', 'unlocked'],
     crafts: ['cnt', 'cdur', 'unlocked'],
     res: ['unlocked']
+    // playerData: ['id', 'val']
 };

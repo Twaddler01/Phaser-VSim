@@ -1,4 +1,4 @@
-import { inventoryData } from './gameData.js';
+import { objData } from './gameData.js';
 
 // Track live proxy updates -- for unlocking items live
 const TRACKED = Symbol('tracked');
@@ -86,7 +86,7 @@ export default class InventoryManager {
     }
 
     addItem(id) {
-        const raw = inventoryData.find(i => i.id === id);
+        const raw = objData.find(i => i.id === id);
         if (!raw) {
             console.warn(`Item '${id}' not found`);
             return;
@@ -112,9 +112,9 @@ export default class InventoryManager {
 
     removeItem(id) {
         // 1. Find in master array
-        const raw = inventoryData.find(i => i.id === id);
+        const raw = objData.find(i => i.id === id);
         if (!raw) {
-            console.warn(`Item '${id}' not found in inventoryData`);
+            console.warn(`Item '${id}' not found in objData`);
             return;
         }
         
@@ -170,7 +170,7 @@ export default class InventoryManager {
     // Return array of raw items for saving (e.g. JSON)
     exportData() {
         // Save from the canonical array so everything persists
-        return inventoryData.map(({ type, id, title, cnt, unlocked }) => ({
+        return objData.map(({ type, id, title, cnt, unlocked }) => ({
             type, id, title, cnt, unlocked
         }));
     }

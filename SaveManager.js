@@ -1,82 +1,151 @@
 export default class SaveManager {
-  /**
-   * @param {Object<string, Array>} rootData - Object containing the main arrays you want to save/load. 
-   *                                           Keys are property names, values are arrays.
-   * @param {string} storageKey - localStorage key name
-   * @param {number} autoSaveInterval - interval in ms for auto-saving
-   */
-  constructor(rootData, storageKey = 'saveState', autoSaveInterval = 5000) {
-    this.rootData = rootData;
-    this.storageKey = storageKey;
-    this.intervalId = null;
+    constructor(
+        rootData,
+        saveFields,
+        storageKey = 'saveState',
+        autoSaveInterval = 5000
+    ) {
+        this.rootData = rootData;
+        this.saveFields = saveFields;
+        this.storageKey = storageKey;
+        this.intervalId = null;
 
-    const hasSave = this.load();
-    if (!hasSave) {
-        this.resetSessionProgress(); // Auto reset on new session
-    }
-        
-    this.startAutoSave(autoSaveInterval);
+        const hasSave = this.load();
 
-    window.addEventListener('beforeunload', () => this.save());
-  }
-
-  load() {
-    const savedJson = localStorage.getItem(this.storageKey);
-    if (!savedJson) return;
-
-    try {
-      const savedData = JSON.parse(savedJson);
-      for (const key in savedData) {
-        if (this.rootData[key] && Array.isArray(savedData[key])) {
-          // Replace entire array contents with saved data
-          this.rootData[key].length = 0;
-          this.rootData[key].push(...savedData[key]);
+        if (!hasSave) {
+            this.resetSessionProgress();
         }
-      }
-      console.log('[SaveManager] Loaded saved state');
-    } catch (e) {
-      console.warn('[SaveManager] Failed to load saved state:', e);
+
+        this.startAutoSave(autoSaveInterval);
+
+        window.addEventListener('beforeunload', () => this.save());
     }
-  }
 
-  save() {
-    try {
-      const json = JSON.stringify(this.rootData);
-      localStorage.setItem(this.storageKey, json);
-      //console.log(`[SaveManager] Saved state at ${new Date().toLocaleTimeString()}`);
-    } catch (e) {
-      console.warn('[SaveManager] Failed to save state:', e);
+    save() {
+        try {
+            const saveData = {};
+
+            // Inventory
+            saveData.objData = this.rootData.objData.map(item => {
+                const fields = this.saveFields[item.type] || [];
+                const savedItem = { id: item.id };
+
+                fields.forEach(field => {
+                    savedItem[field] = item[field];
+                });
+
+                return savedItem;
+            });
+
+            // Player status
+            saveData.playerData = this.rootData.playerData.map(stat => ({
+                id: stat.id,
+                val: stat.val
+            }));
+
+            const json = JSON.stringify(saveData);
+
+            localStorage.setItem(this.storageKey, json);
+
+        } catch (e) {
+            console.warn('[SaveManager] Failed to save state:', e);
+        }
     }
-  }
 
-  startAutoSave(intervalMs) {
-    if (this.intervalId) clearInterval(this.intervalId);
-    this.intervalId = setInterval(() => this.save(), intervalMs);
-  }
+    load() {
+        const savedJson = localStorage.getItem(this.storageKey);
 
-  stopAutoSave() {
-    if (this.intervalId) clearInterval(this.intervalId);
-    this.intervalId = null;
-  }
+        if (!savedJson) return false;
 
-  clear() {
-    localStorage.removeItem(this.storageKey);
-    // Optionally reset arrays if you want here
-    console.log('[SaveManager] Cleared saved state');
-  }
+        try {
+            const savedData = JSON.parse(savedJson);
 
-  /** Reset progress for resources at start of new session */
-  resetSessionProgress() {
-        for (const key in this.rootData) {
-            const arr = this.rootData[key];
-            if (Array.isArray(arr)) {
-                arr.forEach(item => {
-                    if (item.type === 'resource') {
-                        item.progress = 0;
+            // Restore inventory
+            if (Array.isArray(savedData.objData)) {
+                savedData.objData.forEach(savedItem => {
+                    const item = this.rootData.objData.find(
+                        i => i.id === savedItem.id
+                    );
+
+                    if (!item) return;
+
+                    const fields = this.saveFields[item.type] || [];
+
+                    fields.forEach(field => {
+                        if (savedItem[field] !== undefined) {
+                            item[field] = savedItem[field];
+                        }
+                    });
+                });
+            }
+
+            // Restore player status
+            if (Array.isArray(savedData.playerData)) {
+                savedData.playerData.forEach(savedStat => {
+                    const stat = this.rootData.playerData.find(
+                        s => s.id === savedStat.id
+                    );
+
+                    if (stat && savedStat.val !== undefined) {
+                        stat.val = savedStat.val;
                     }
                 });
             }
+
+            console.log('[SaveManager] Loaded saved state');
+
+            return true;
+
+        } catch (e) {
+            console.warn('[SaveManager] Failed to load saved state:', e);
+
+            return false;
         }
-        //console.log('[SaveManager] Reset progress for new session');
+    }
+
+    startAutoSave(intervalMs) {
+        if (this.intervalId) {
+            clearInterval(this.intervalId);
+        }
+
+        this.intervalId = setInterval(() => {
+            this.save();
+        }, intervalMs);
+    }
+
+    stopAutoSave() {
+        if (this.intervalId) {
+            clearInterval(this.intervalId);
+        }
+
+        this.intervalId = null;
+    }
+
+    clear() {
+        localStorage.removeItem(this.storageKey);
+        console.log('[SaveManager] Cleared saved state');
+    }
+
+    resetSessionProgress() {
+        this.rootData.objData.forEach(item => {
+            if (item.type === 'resource') {
+                item.progress = 0;
+            }
+        });
+    }
+    
+    debug() {
+        const savedJson = localStorage.getItem(this.storageKey);
+    
+        if (!savedJson) {
+            console.log('No save data found.');
+            return;
+        }
+    
+        const savedData = JSON.parse(savedJson);
+    
+        console.log(
+            JSON.stringify(savedData, null, 2)
+        );
     }
 }

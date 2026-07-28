@@ -2,13 +2,12 @@ import MenuSystem from './MenuSystem.js';
 import { gatherRenderer, craftRenderer, inventoryRenderer, resRenderer } from  './contentRenderers.js';
 import InventoryManager from './InventoryManager.js';
 import PlayerStatusManager from './PlayerStatusManager.js';
-import { menuData, inventoryData, playerData } from './gameData.js';
+import { menuData, objData, playerData, saveFields } from './gameData.js';
 import SaveManager from './SaveManager.js';
 
 // Pass the actual arrays to be saved — for menuData pass the `.parent` array directly
 const gameData = {
-    menuData: menuData.parent,
-    inventoryData,
+    objData,
     playerData
 };
 
@@ -31,8 +30,13 @@ class MainScene extends Phaser.Scene {
 
     create() {
         // Autosave data to local storage
-        this.saveManager = new SaveManager(gameData, 'saveState', 5000);
-
+        this.saveManager = new SaveManager(
+          gameData,
+          saveFields,
+          'saveState',
+          5000
+        );
+      
 //// temp
         const width = this.game.config.width;
         const height = this.game.config.height;
@@ -57,7 +61,7 @@ class MainScene extends Phaser.Scene {
         
         // Tracks inventory for other elements at runtime 
         this.inventoryManager = new InventoryManager(this, this.menu);
-        this.inventoryManager.init(inventoryData);
+        this.inventoryManager.init(objData);
         this.inventoryManager.refreshMenu();
 
         // inventory Menu
@@ -160,8 +164,8 @@ class MainScene extends Phaser.Scene {
             this.inventoryManager.addItem(itemToAdd);
         });
         
-        debugFn.debugUIButton(this, 'inventoryData', () => {
-            console.log(JSON.stringify(inventoryData, null, 2));
+        debugFn.debugUIButton(this, 'objData', () => {
+            console.log(JSON.stringify(objData, null, 2));
         });
         
         debugFn.debugUIButton(this, 'gameData', () => {
