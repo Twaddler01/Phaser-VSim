@@ -483,16 +483,23 @@ export const resRenderer = (scene, container, res, y, menu, parentId, contentHei
         if (!updateLabel()) return;
         
         const resUnlock = [
-            { id: 'town_hall', next: [ 'town_center', 'sickle' ] },
-            { id: 'sickle', next: [ 'iron_pick', 'iron_axe' ] }
+            { id: 'town_hall_res', next: [ 'town_center_res', 'sickle_res' ] },
+            { id: 'sickle_res', next: [ 'iron_pick_res', 'iron_axe_res' ] }
         ];
         
         const currRes = resUnlock.find(r => r.id === res.id);
         
         const unlockResearch = (unlock) => {
+            // Unlock new research
             const resItem = scene.inventoryManager.items.find(i => i.id === unlock);
             if (resItem) {
                 scene.inventoryManager.addItem(resItem.id);
+            }
+            // Unlock item from research
+            const lockedItems = scene.inventoryManager.items.filter(i => i.unlocked === false && i.type != 'res');
+            const foundItem = lockedItems.find(i => i.id === resItem.unlocks);
+            if (foundItem) {
+                console.log(foundItem.id);
             }
         };
 
@@ -501,6 +508,16 @@ export const resRenderer = (scene, container, res, y, menu, parentId, contentHei
                 unlockResearch(currRes.next[research]);
             }
         }
+        
+        const deductCosts = () => {
+            Object.entries(res.requirements).forEach(([resId, amt]) => {
+                const resItem = scene.inventoryManager.items.find(i => i.id === resId);
+                if (resItem) {
+                    resItem.cnt = Math.max(0, resItem.cnt - amt);
+                }
+            });
+        }
+        //deductCosts();
         
         // Mark researched as locked
         scene.inventoryManager.removeItem(res.id);
