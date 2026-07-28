@@ -297,7 +297,7 @@ export const craftRenderer = (scene, container, recipe, y, menu, parentId) => {
 };
 
 export const inventoryRenderer = (scene, container, item, y, menu, parentId, contentHeight) => {
-  // Exclude these from inventory display
+  // Exclude these from inventory display -- see MenuSystem
   if (item.type === 'crafts' && item.cnt < 1) return;
   if (item.type === 'res') return;
   
@@ -478,6 +478,37 @@ export const resRenderer = (scene, container, res, y, menu, parentId, contentHei
     bg.setFillStyle(allMet ? 0x225522 : 0x444444);
     return allMet;
   };
+
+  // Central research action
+  const handleResearch = () => {
+    if (!updateLabel()) return;
+    
+    const resUnlock = [
+      { id: 'town_hall', next: [ 'town_center', 'sickle' ] },
+      { id: 'sickle', next: [ 'iron_pick', 'iron_axe' ] }
+    ];
+    
+    const currRes = resUnlock.find(r => r.id === res.id);
+    
+    const unlockResearch = (unlock) => {
+      const resItem = scene.inventoryManager.items.find(i => i.id === unlock);
+      if (resItem) {
+        scene.inventoryManager.addItem(resItem.id);
+      }
+    };
+
+    if (currRes) {
+      for (let research in currRes.next) {
+        unlockResearch(currRes.next[research]);
+      }
+    }
+    
+    // Mark researched as locked
+    scene.inventoryManager.removeItem(res.id);
+    
+  };
+  
+  bg.on('pointerdown', handleResearch);
 
   container.add([bg, titleLabel, ...reqLabels.map(r => r.textObj)]);
 

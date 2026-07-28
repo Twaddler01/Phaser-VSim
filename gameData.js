@@ -1,3 +1,5 @@
+// gameData.js
+
 /**
  * @typedef {Object} MenuParent
  * @property {string} id - Unique identifier for the parent menu section.
@@ -41,7 +43,11 @@ export const inventoryData = [
     { type: 'crafts', id: 'well', title: 'Well', cnt: 0, requirements: { wood: 5, stone: 20 }, cdur: 100, dur: 100, mod: 'water', gatherGain: 3, unlocked: true },
     { type: 'crafts', id: 'campfire', title: 'Campfire', cnt: 0, requirements: { wood: 5, stone: 2 }, cdur: 100, dur: 100, gatherGain: 1, unlocked: true },
     // Research
-    { type: 'res', id: 'town_hall', title: 'Town Hall', desc: 'Establish a Town Hall.', cnt: 0, requirements: { wood: 100, stone: 100 }, unlocked: true },
+    { type: 'res', id: 'town_hall', title: 'Town Hall', desc: 'Learn how to build a Town Hall.', cnt: 0, requirements: { wood: 50, stone: 50 }, unlocked: true },
+    { type: 'res', id: 'town_center', title: 'Town Center', desc: 'Learn how to build a Town Center.', cnt: 0, requirements: { wood: 50, stone: 50 }, unlocked: false },
+    { type: 'res', id: 'sickle', title: 'Sickle', desc: 'Learn how to craft a sickle.', cnt: 0, requirements: { wood: 50, stone: 50 }, unlocked: false },
+    { type: 'res', id: 'iron_pick', title: 'Iron Pick', desc: 'Learn how to craft an Iron Pick', cnt: 0, requirements: { wood: 50, stone: 50 }, unlocked: false },
+    { type: 'res', id: 'iron_axe', title: 'Iron Axe', desc: 'Learn how to craft an Iron Axe.', cnt: 0, requirements: { wood: 50, stone: 50 }, unlocked: false },
 ];
 
 export const playerData = [
@@ -49,3 +55,10 @@ export const playerData = [
     { id: 'thirst', title: 'Thirst', val: 100 },
     { id: 'warmth', title: 'Warmth', val: 100 }
 ];
+
+export const saveFields = {
+    stats: ['cnt', 'unlocked'],
+    resource: ['cnt', 'unlocked'],
+    crafts: ['cnt', 'cdur', 'unlocked'],
+    res: ['unlocked']
+};
