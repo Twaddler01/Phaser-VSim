@@ -478,32 +478,56 @@ export const resRenderer = (scene, container, res, y, menu, parentId, contentHei
         return allMet;
     };
 
-    // Central research action
-    const handleResearch = () => {
-        if (!updateLabel()) return;
-        
-        const currRes = scene.inventoryManager.items.find(r => r.id === res.id);
-        
-        const unlockResearch = (unlock) => {
-            // Unlock new research
-            const resItem = scene.inventoryManager.items.find(i => i.id === unlock);
-            if (resItem) {
-                scene.inventoryManager.addItem(resItem.id);
-            }
-            // Unlock item from research
-            const lockedItems = scene.inventoryManager.items.filter(i => i.unlocked === false && i.type != 'res');
-            const foundItem = lockedItems.find(i => i.id === res.unlocks);
-            if (foundItem) {
-                scene.inventoryManager.addItem(foundItem.id);
-            }
-        };
+// Check research
+const updateResearchUnlocks = () => {
+    const researchItems = scene.inventoryManager.items.filter(
+        i => i.type === 'res'
+    );
 
-        if (currRes) {
-            for (let research in currRes.next) {
-                unlockResearch(currRes.next[research]);
-            }
+    researchItems.forEach(research => {
+
+        // Already researched
+        if (research.researched) return;
+
+        // No prerequisites = available
+        if (!research.reqResearch?.length) {
+            research.unlocked = true;
+            return;
         }
-        
+
+        // Check whether every prerequisite has been researched
+        const reqMet = research.reqResearch.every(reqId => {
+            const required = researchItems.find(
+                i => i.unlocks === reqId
+            );
+
+            return required?.researched === true;
+        });
+
+        if (reqMet) {
+            research.unlocked = true;
+        }
+    });
+};
+
+// Research action
+const handleResearch = () => {
+    // Can't research until requirements are met
+    if (!updateLabel()) return;
+
+    // Mark this research as completed
+    res.researched = true;
+
+    // Unlock the actual item/technology
+    scene.inventoryManager.addItem(res.unlocks);
+
+    // Hide this research from the Research menu
+    scene.inventoryManager.removeItem(res.id);
+
+    // Check the research tree and unlock anything
+    // whose prerequisites are now satisfied
+    updateResearchUnlocks();
+
         const deductCosts = () => {
             Object.entries(res.requirements).forEach(([resId, amt]) => {
                 const resItem = scene.inventoryManager.items.find(i => i.id === resId);
@@ -512,13 +536,12 @@ export const resRenderer = (scene, container, res, y, menu, parentId, contentHei
                 }
             });
         }
-        deductCosts();
+        //deductCosts();
         
-        // Mark researched as locked
-        scene.inventoryManager.removeItem(res.id);
-        
+
     };
     
+    updateResearchUnlocks();
     bg.on('pointerdown', handleResearch);
 
     container.add([bg, titleLabel, ...reqLabels.map(r => r.textObj)]);

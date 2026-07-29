@@ -124,10 +124,8 @@ export default class InventoryManager {
         // 3. Remove from tracked arrays/maps
         const idx = this.items.findIndex(i => i.id === id);
         if (idx !== -1) {
-            //this.items.splice(idx, 1);
             const item = this.items.find(i => i.id === id);
             item.unlocked = false;
-            //this._trackedMap.delete(id);
         }
         
         // 4. Refresh menus
