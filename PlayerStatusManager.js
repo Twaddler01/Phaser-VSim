@@ -15,9 +15,9 @@ export default class PlayerStatusManager {
     render() {
       // Static labels
       let x = 10;
-      let y = 10;
+      let y = 200;
       let width = this.inventoryMenu.width - this.inventoryMenu.contentIndent;
-      let height = this.inventoryMenu.y - this.inventoryMenu.verticalPadding - 10;
+      let height = 200;  //this.inventoryMenu.y - this.inventoryMenu.verticalPadding - 10;
       
       const bg = this.scene.add.rectangle(
         x, y,

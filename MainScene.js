@@ -2,6 +2,7 @@ import MenuSystem from './MenuSystem.js';
 import { gatherRenderer, craftRenderer, inventoryRenderer, resRenderer } from  './contentRenderers.js';
 import InventoryManager from './InventoryManager.js';
 import PlayerStatusManager from './PlayerStatusManager.js';
+import MessageStatus from './MessageStatus.js';
 import { menuData, objData, playerData, saveFields } from './gameData.js';
 import SaveManager from './SaveManager.js';
 
@@ -45,7 +46,7 @@ class MainScene extends Phaser.Scene {
         this.graphics.fillStyle(0x222222, 1); // Gray color
         this.graphics.fillRect(0, 0, width, height);
         this.graphics.setDepth(-1); // -1 ensures it's behind other game elements
-////
+//
 
         // Regulwr Menu
         this.menu = new MenuSystem(this, {
@@ -67,7 +68,7 @@ class MainScene extends Phaser.Scene {
         // inventory Menu
         this.inventoryMenu = new MenuSystem(this, {
             x: 10,
-            y: 200,
+            y: 400,
             contentIndent: 0,
             id: 'Inventory',
             data: { 
@@ -84,6 +85,9 @@ class MainScene extends Phaser.Scene {
 
         // NEW -- No renderer
         this.playerStatusManager = new PlayerStatusManager(this, this.inventoryMenu);
+        
+        // For messages
+        this.messageStatus = new MessageStatus(this);
         
         this.debugUI(700, 10);
         

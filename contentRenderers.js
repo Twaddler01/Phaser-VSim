@@ -79,27 +79,22 @@ export const gatherRenderer = (scene, container, item, y, menu, parentId, conten
         const clicks = getClicksPerItem();
         const progress = Math.min(1, item.progress / clicks );
         barFill.width = barWidth * progress;
-        if (clicks <= 1) {
-            barBg.setVisible(false);
-            barFill.setVisible(false);
-            return;
-        }
+
+        barBg.setVisible(clicks > 1);
+        barFill.setVisible(clicks > 1);
         
         // Full Inventory
         fullLabel.setVisible(item.cnt >= item.max);
         if (item.cnt >= item.max) {
+            item.cnt = item.max;
             barBg.setVisible(false);
             barFill.setVisible(false);
             gatherGainLabel.setText('');
             bg.setFillStyle(0x800000);
             item.progress = 0;
-            item.cnt = item.max;
             return;
         }
         bg.setFillStyle(0x225522);
-        
-        barBg.setVisible(true);
-        barFill.setVisible(true);
     };
     
     updateBar();
@@ -110,11 +105,12 @@ export const gatherRenderer = (scene, container, item, y, menu, parentId, conten
 
         if (item.progress >= getClicksPerItem() && item.cnt < item.max) {
             item.cnt += getGatherGain();          // add resource
-// Uses hunger/thirst
+
+            // Uses hunger/thirst
             if (scene.playerStatusManager) {
                 scene.playerStatusManager.processGather();
             }
-// Crafts
+            // Crafts
             const craftedMod = scene.inventoryManager.items.find(i => i.mod === item.id);
             if (craftedMod && craftedMod.mod === item.id) {
                 // Find crafted item that modifies other item
@@ -478,55 +474,55 @@ export const resRenderer = (scene, container, res, y, menu, parentId, contentHei
         return allMet;
     };
 
-// Check research
-const updateResearchUnlocks = () => {
-    const researchItems = scene.inventoryManager.items.filter(
-        i => i.type === 'res'
-    );
-
-    researchItems.forEach(research => {
-
-        // Already researched
-        if (research.researched) return;
-
-        // No prerequisites = available
-        if (!research.reqResearch?.length) {
-            research.unlocked = true;
-            return;
-        }
-
-        // Check whether every prerequisite has been researched
-        const reqMet = research.reqResearch.every(reqId => {
-            const required = researchItems.find(
-                i => i.unlocks === reqId
-            );
-
-            return required?.researched === true;
+    // Check research
+    const updateResearchUnlocks = () => {
+        const researchItems = scene.inventoryManager.items.filter(
+            i => i.type === 'res'
+        );
+    
+        researchItems.forEach(research => {
+    
+            // Already researched
+            if (research.researched) return;
+    
+            // No prerequisites = available
+            if (!research.reqResearch?.length) {
+                research.unlocked = true;
+                return;
+            }
+    
+            // Check whether every prerequisite has been researched
+            const reqMet = research.reqResearch.every(reqId => {
+                const required = researchItems.find(
+                    i => i.unlocks === reqId
+                );
+    
+                return required?.researched === true;
+            });
+    
+            if (reqMet) {
+                research.unlocked = true;
+            }
         });
-
-        if (reqMet) {
-            research.unlocked = true;
-        }
-    });
-};
-
-// Research action
-const handleResearch = () => {
-    // Can't research until requirements are met
-    if (!updateLabel()) return;
-
-    // Mark this research as completed
-    res.researched = true;
-
-    // Unlock the actual item/technology
-    scene.inventoryManager.addItem(res.unlocks);
-
-    // Hide this research from the Research menu
-    scene.inventoryManager.removeItem(res.id);
-
-    // Check the research tree and unlock anything
-    // whose prerequisites are now satisfied
-    updateResearchUnlocks();
+    };
+    
+    // Research action
+    const handleResearch = () => {
+        // Can't research until requirements are met
+        if (!updateLabel()) return;
+    
+        // Mark this research as completed
+        res.researched = true;
+    
+        // Unlock the actual item/technology
+        scene.inventoryManager.addItem(res.unlocks);
+    
+        // Hide this research from the Research menu
+        scene.inventoryManager.removeItem(res.id);
+    
+        // Check the research tree and unlock anything
+        // whose prerequisites are now satisfied
+        updateResearchUnlocks();
 
         const deductCosts = () => {
             Object.entries(res.requirements).forEach(([resId, amt]) => {
@@ -538,7 +534,6 @@ const handleResearch = () => {
         }
         //deductCosts();
         
-
     };
     
     updateResearchUnlocks();
@@ -554,5 +549,4 @@ const handleResearch = () => {
         updateFn: updateLabel,
         height: boxHeight
     };
-
 };
