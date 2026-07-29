@@ -482,12 +482,7 @@ export const resRenderer = (scene, container, res, y, menu, parentId, contentHei
     const handleResearch = () => {
         if (!updateLabel()) return;
         
-        const resUnlock = [
-            { id: 'town_hall_res', next: [ 'town_center_res', 'sickle_res' ] },
-            { id: 'sickle_res', next: [ 'iron_pick_res', 'iron_axe_res' ] }
-        ];
-        
-        const currRes = resUnlock.find(r => r.id === res.id);
+        const currRes = scene.inventoryManager.items.find(r => r.id === res.id);
         
         const unlockResearch = (unlock) => {
             // Unlock new research
@@ -497,9 +492,9 @@ export const resRenderer = (scene, container, res, y, menu, parentId, contentHei
             }
             // Unlock item from research
             const lockedItems = scene.inventoryManager.items.filter(i => i.unlocked === false && i.type != 'res');
-            const foundItem = lockedItems.find(i => i.id === resItem.unlocks);
+            const foundItem = lockedItems.find(i => i.id === res.unlocks);
             if (foundItem) {
-                console.log(foundItem.id);
+                scene.inventoryManager.addItem(foundItem.id);
             }
         };
 
@@ -517,7 +512,7 @@ export const resRenderer = (scene, container, res, y, menu, parentId, contentHei
                 }
             });
         }
-        //deductCosts();
+        deductCosts();
         
         // Mark researched as locked
         scene.inventoryManager.removeItem(res.id);

@@ -125,7 +125,7 @@ class MainScene extends Phaser.Scene {
         };
         
         debugFn.debugUITitle(this);
-        
+/*
         debugFn.debugUIButton(this, 'Add: New Menu', () => {
             console.log('Added: New Menu...');
             this.menu.addParentMenu('New Menu');
@@ -146,7 +146,11 @@ class MainScene extends Phaser.Scene {
             console.log('Renoved: New Menu...');
             this.menu.removeParentMenu('New Menu');
         });
-        
+*/
+        debugFn.debugUIButton(this, 'Clear Data', () => {
+            this.saveManager.clear();            
+        });
+
         debugFn.debugUIButton(this, 'Renove: Wood', () => {
             console.log('Renoved: Wood...');
             this.inventoryManager.removeItem('wood');

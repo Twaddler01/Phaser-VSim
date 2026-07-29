@@ -44,13 +44,14 @@ export const objData = [
     { type: 'crafts', id: 'wooden_spear', title: 'Wooden Spear', cnt: 0, requirements: { wood: 8 }, cdur: 100, dur: 100, mod: 'food', gatherGain: 3, unlocked: true },
     { type: 'crafts', id: 'well', title: 'Well', cnt: 0, requirements: { wood: 5, stone: 20 }, cdur: 100, dur: 100, mod: 'water', gatherGain: 3, unlocked: true },
     { type: 'crafts', id: 'campfire', title: 'Campfire', cnt: 0, requirements: { wood: 5, stone: 2 }, cdur: 100, dur: 100, gatherGain: 1, unlocked: true },
-    { type: 'crafts', id: 'sickle', title: 'Sickle', cnt: 0, requirements: { wood: 5, stone: 2 }, cdur: 100, dur: 100, gatherGain: 3, unlocked: false },
+    { type: 'crafts', id: 'sickle', title: 'Sickle', cnt: 0, requirements: { wood: 5, stone: 2 }, cdur: 100, dur: 100, mod: 'fiber', gatherGain: 3, unlocked: false },
+    { type: 'crafts', id: 'town_hall', title: 'Town Hall', cnt: 0, requirements: { wood: 5, stone: 2 }, cdur: 100, dur: 100, gatherGain: 1, unlocked: false },
     // Research
-    { type: 'res', id: 'town_hall_res', unlocks: 'town_hall', title: 'Town Hall', desc: 'Learn how to build a Town Hall.', cnt: 0, requirements: { wood: 50, stone: 50 }, unlocked: true },
-    { type: 'res', id: 'town_center_res', unlocks: 'town_center', title: 'Town Center', desc: 'Learn how to build a Town Center.', cnt: 0, requirements: { wood: 50, stone: 50 }, unlocked: false },
-    { type: 'res', id: 'sickle_res', unlocks: 'sickle', title: 'Sickle', desc: 'Learn how to craft a sickle.', cnt: 0, requirements: { wood: 50, stone: 50 }, unlocked: false },
-    { type: 'res', id: 'iron_pick_res', unlocks: 'iron_pick', title: 'Iron Pick', desc: 'Learn how to craft an Iron Pick', cnt: 0, requirements: { wood: 50, stone: 50 }, unlocked: false },
-    { type: 'res', id: 'iron_axe_res', unlocks: 'iron_axe', title: 'Iron Axe', desc: 'Learn how to craft an Iron Axe.', cnt: 0, requirements: { wood: 50, stone: 50 }, unlocked: false },
+    { type: 'res', id: 'town_hall_res', title: 'Town Hall', unlocks: 'town_hall', next: [ 'town_center_res', 'sickle_res' ], desc: 'Learn how to build a Town Hall.', cnt: 0, requirements: { wood: 50, stone: 50 }, unlocked: true },
+    { type: 'res', id: 'town_center_res', title: 'Town Center', unlocks: 'town_center', desc: 'Learn how to build a Town Center.', cnt: 0, requirements: { wood: 50, stone: 50 }, unlocked: false },
+    { type: 'res', id: 'sickle_res', title: 'Sickle', unlocks: 'sickle', next: [ 'iron_pick_res', 'iron_axe_res' ], desc: 'Learn how to craft a sickle.', cnt: 0, requirements: { wood: 50, stone: 50 }, unlocked: false },
+    { type: 'res', id: 'iron_pick_res', title: 'Iron Pick', unlocks: 'iron_pick', desc: 'Learn how to craft an Iron Pick', cnt: 0, requirements: { wood: 50, stone: 50 }, unlocked: false },
+    { type: 'res', id: 'iron_axe_res', title: 'Iron Axe', unlocks: 'iron_axe', desc: 'Learn how to craft an Iron Axe.', cnt: 0, requirements: { wood: 50, stone: 50 }, unlocked: false },
 ];
 
 // Data for PlayerStatusManager

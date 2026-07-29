@@ -1,3 +1,5 @@
+import { objData, playerData } from './gameData.js';
+
 export default class SaveManager {
     constructor(
         rootData,
@@ -9,6 +11,9 @@ export default class SaveManager {
         this.saveFields = saveFields;
         this.storageKey = storageKey;
         this.intervalId = null;
+        
+        // Keep untouched copy of initial game state
+        this.defaultData = structuredClone(rootData);
 
         const hasSave = this.load();
 
@@ -123,6 +128,28 @@ export default class SaveManager {
 
     clear() {
         localStorage.removeItem(this.storageKey);
+    
+        // Restore existing objects
+        this.rootData.objData.forEach(item => {
+            const defaultItem = this.defaultData.objData.find(
+                i => i.id === item.id
+            );
+    
+            if (defaultItem) {
+                Object.assign(item, structuredClone(defaultItem));
+            }
+        });
+    
+        this.rootData.playerData.forEach(stat => {
+            const defaultStat = this.defaultData.playerData.find(
+                s => s.id === stat.id
+            );
+    
+            if (defaultStat) {
+                Object.assign(stat, structuredClone(defaultStat));
+            }
+        });
+    
         console.log('[SaveManager] Cleared saved state');
     }
 
