@@ -3,21 +3,29 @@ import { gatherRenderer, craftRenderer, inventoryRenderer, resRenderer } from  '
 import InventoryManager from './InventoryManager.js';
 import PlayerStatusManager from './PlayerStatusManager.js';
 import MessageStatus from './MessageStatus.js';
-import { menuData, objData, playerData, saveFields } from './gameData.js';
+import { menuData, objData, playerData, messageData, saveFields } from './gameData.js';
 import SaveManager from './SaveManager.js';
 
-// Pass the actual arrays to be saved — for menuData pass the `.parent` array directly
+// Pass the actual arrays to be saved 
 const gameData = {
     objData,
-    playerData
+    playerData,
+    messageData
 };
 
 // `000`
 // console.log();
+/*const printStr = (item) => {
+    console.log(JSON.stringify(item, null,  2));
+};*/
 
 class MainScene extends Phaser.Scene {
     constructor() {
         super('MainScene');
+        // Scene shortcut to stringify
+        this.jprint = (item) => {
+            console.log(JSON.stringify(item, null,  2));
+        }
     }
 
     preload() {
@@ -176,8 +184,8 @@ class MainScene extends Phaser.Scene {
             console.log(JSON.stringify(objData, null, 2));
         });
         
-        debugFn.debugUIButton(this, 'gameData', () => {
-            console.log(JSON.stringify(gameData, null, 2));
+        debugFn.debugUIButton(this, 'debug save data', () => {
+            this.saveManager.debug();
         });   
         
         debugFn.debugUIButton(this, 'Sub 1 hunger', () => {
@@ -202,7 +210,13 @@ class MainScene extends Phaser.Scene {
           let thirst = this.playerStatusManager.get('thirst');
           thirst -= 10;
           this.playerStatusManager.set('thirst', thirst)
-        });   
+        });
+        
+        debugFn.debugUIButton(this, 'Add message', () => {
+            this.messageStatus.addMessage(
+                'You found a Stone Axe. Its durability is beginning to decrease. You found a Stone Axe. Its durability is beginning to decrease. You found a Stone Axe. Its durability is beginning to decrease.'
+            );
+        });
 
         //
         

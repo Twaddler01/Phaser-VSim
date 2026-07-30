@@ -1,5 +1,3 @@
-import { objData, playerData } from './gameData.js';
-
 export default class SaveManager {
     constructor(
         rootData,
@@ -47,13 +45,19 @@ export default class SaveManager {
                 id: stat.id,
                 val: stat.val
             }));
+            
+            // Recent messages
+            saveData.messageData = this.rootData.messageData.map(stat => ({
+                timestamp: stat.timestamp,
+                message: stat.message
+            }));
 
             const json = JSON.stringify(saveData);
 
             localStorage.setItem(this.storageKey, json);
 
         } catch (e) {
-            console.warn('[SaveManager] Failed to save state:', e);
+            console.warn('[SaveManager] Failed to save state:' + e);
         }
     }
 
@@ -93,6 +97,19 @@ export default class SaveManager {
 
                     if (stat && savedStat.val !== undefined) {
                         stat.val = savedStat.val;
+                    }
+                });
+            }
+            
+            // Restore recent messages
+            if (Array.isArray(savedData.messageData)) {
+                savedData.messageData.forEach(savedStat => {
+                    const stat = this.rootData.messageData.find(
+                        s => s.timestamp === savedStat.timestamp
+                    );
+
+                    if (stat && savedStat.message !== undefined) {
+                        stat.message = savedStat.message;
                     }
                 });
             }

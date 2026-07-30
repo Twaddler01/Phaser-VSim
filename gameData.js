@@ -62,6 +62,8 @@ export const playerData = [
     { id: 'warmth', title: 'Warmth', val: 100 }
 ];
 
+export const messageData = [];
+
 // Saved data fields for objData 
 export const saveFields = {
     stats: ['cnt', 'unlocked'],
