@@ -103,14 +103,18 @@ export default class SaveManager {
             
             // Restore recent messages
             if (Array.isArray(savedData.messageData)) {
-                savedData.messageData.forEach(savedStat => {
-                    const stat = this.rootData.messageData.find(
-                        s => s.timestamp === savedStat.timestamp
-                    );
-
-                    if (stat && savedStat.message !== undefined) {
-                        stat.message = savedStat.message;
-                    }
+            
+                // Clear current messages first
+                this.rootData.messageData.length = 0;
+            
+                // Add saved messages back into the existing array
+                savedData.messageData.forEach(savedMessage => {
+            
+                    this.rootData.messageData.push({
+                        timestamp: savedMessage.timestamp,
+                        message: savedMessage.message
+                    });
+            
                 });
             }
 

@@ -12,8 +12,7 @@ export default class MessageStatus {
         this.maxScrollY = 0;
 
         this.draw();
-
-        this.testMessages();
+        this.loadMessages();
     }
 
 
@@ -235,20 +234,25 @@ export default class MessageStatus {
     // Add message
     // --------------------------------------------------
 
-    addMessage(message) {
+    addMessage(message, timestamp = null, save = true) {
         if (!message) return;
 
         // Store for saving
-        this.storeMessage(message);
+        // Loaded messages should not be saved again.
+        if (save) {
+            this.storeMessage(message);
+        }
+
+        // Use existing timestamp when loading,
+        // otherwise generate a new one.
+        const displayTimestamp = timestamp || this.getTimestamp();
 
         // --------------------------------------------------
         // Create message text
         // --------------------------------------------------
-
-        const timestamp = this.getTimestamp();
     
         const displayMessage =
-            `${timestamp}: "${message}"`;
+            `${displayTimestamp}: "${message}"`;
     
         const padding = 24;
     
@@ -389,9 +393,22 @@ export default class MessageStatus {
         if (messageData.length > 10) {
             messageData.shift();
         }
-        //this.scene.jprint(messageData);
     }
+
+    loadMessages() {
+        if (!messageData?.length) return;
     
+        messageData.forEach(savedMessage => {
+    
+            this.addMessage(
+                savedMessage.message,
+                savedMessage.timestamp,
+                false
+            );
+    
+        });
+    }
+
     testMessages() {
         this.addMessage(
             'You found a Stone Axe. Its durability is beginning to decrease. You found a Stone Axe. Its durability is beginning to decrease. You found a Stone Axe. Its durability is beginning to decrease.'
