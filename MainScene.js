@@ -36,8 +36,8 @@ class MainScene extends Phaser.Scene {
     }
 
     create() {
-this.testCount = 0;
-this.sessionTimeElapsed = 0;
+        // Session timer
+        this.sessionTimeElapsed = 0;
         
         // Autosave data to local storage
         this.saveManager = new SaveManager(
@@ -231,47 +231,47 @@ this.sessionTimeElapsed = 0;
         
     }
     
-updateDurability(delta) {
-    this.sessionTimeElapsed += delta;
-
-    if (this.sessionTimeElapsed < 1000) return;
-
-    const durItem = gameData.objData.filter(
-        i => i.decay >= 0
-    );
-
-    durItem.forEach(item => {
-
-        if (item.cnt > 0 && item.cdur >= 0) {
-
-            item.cdur -= item.decay;
-
-            if (item.cdur <= 0) {
-                item.cnt -= 1;
-
-                if (item.cnt > 0) {
-                    item.cdur = item.dur;
-                } else {
-                    item.cdur = 0;
-                    if (this.inventoryMenu) {
-                        this.inventoryMenu.render();
+    updateDurability(delta) {
+        this.sessionTimeElapsed += delta;
+    
+        if (this.sessionTimeElapsed < 1000) return;
+    
+        const durItem = gameData.objData.filter(
+            i => i.decay >= 0
+        );
+    
+        durItem.forEach(item => {
+    
+            if (item.cnt > 0 && item.cdur >= 0) {
+    
+                item.cdur -= item.decay;
+    
+                if (item.cdur <= 0) {
+                    item.cnt -= 1;
+    
+                    if (item.cnt > 0) {
+                        item.cdur = item.dur;
+                    } else {
+                        item.cdur = 0;
+                        if (this.inventoryMenu) {
+                            this.inventoryMenu.render();
+                        }
                     }
                 }
+    
+                item.cdur = Math.round(item.cdur * 10) / 10;
+    
+                this.inventoryMenu?.updateItem(
+                    `All Inventory:${item.id}`
+                );
             }
-
-            item.cdur = Math.round(item.cdur * 10) / 10;
-
-            this.inventoryMenu?.updateItem(
-                `All Inventory:${item.id}`
-            );
-        }
-    });
-
-    // PlayerStatusManager handles the actual warmth calculation
-    this.playerStatusManager.updateWarmth(objData, gameData.playerData);
-
-    this.sessionTimeElapsed -= 1000;
-}
+        });
+    
+        // PlayerStatusManager handles the actual warmth calculation
+        this.playerStatusManager.updateWarmth(objData, gameData.playerData);
+    
+        this.sessionTimeElapsed -= 1000;
+    }
 } // MainScene
 
 // Export default MainScene;
