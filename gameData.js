@@ -33,12 +33,14 @@ export const objData = [
     { type: 'stats', id: 'food', title: 'Food', cnt: 0, max: 10, progress: 0, hps: 10, unlocked: true },
     { type: 'stats', id: 'water', title: 'Water', cnt: 0, max: 5, progress: 0, hps: 10, unlocked: true },
     // Resources
-    { type: 'resource', id: 'fiber', title: 'Fiber', cnt: 0, max: 500, progress: 0, hps: 5, unlocked: true },
+    { type: 'resource', id: 'fiber', title: 'Fiber', cnt: 300, max: 500, progress: 0, hps: 5, unlocked: true },
     { type: 'resource', id: 'wood', title: 'Wood', cnt: 50, max: 500, progress: 0, hps: 10, unlocked: true },
     { type: 'resource', id: 'stone', title: 'Stone', cnt: 50, max: 500, progress: 0, hps: 10, unlocked: true },
     { type: 'resource', id: 'metal', title: 'Metal', cnt: 0, max: 500, progress: 0, hps: 20, unlocked: false },
     // Crafts
     // mod: helps gather x
+    // NEW ... decsy: reduced dur per second
+    { type: 'crafts', id: 'fiber_shirt', title: 'Fiber Shirt', desc: 'Increases warmth.', gain: { warmth: 20 }, cnt: 0, requirements: { thread: 2, fiber: 5 }, cdur: 100, dur: 100, decay: 20, unlocked: true },
     { type: 'crafts', id: 'stone_pick', title: 'Stone Pick', desc: 'Increases stone gather rate.', cnt: 0, requirements: { wood: 10, stone: 5 }, cdur: 100, dur: 100, mod: 'stone', gatherGain: 3, unlocked: true },
     { type: 'crafts', id: 'stone_axe', title: 'Stone Axe', desc: 'Increases wood gather rate.', cnt: 0, requirements: { wood: 10, stone: 5 }, cdur: 100, dur: 100, mod: 'wood', gatherGain: 3, unlocked: true },
     { type: 'crafts', id: 'wooden_spear', title: 'Wooden Spear', cnt: 0, requirements: { wood: 8 }, cdur: 100, dur: 100, mod: 'food', gatherGain: 3, unlocked: true },
@@ -47,6 +49,8 @@ export const objData = [
     { type: 'crafts', id: 'sickle', title: 'Sickle', cnt: 0, requirements: { wood: 5, stone: 2 }, cdur: 100, dur: 100, mod: 'fiber', gatherGain: 3, unlocked: false },
     { type: 'crafts', id: 'town_hall', title: 'Town Hall', cnt: 0, requirements: { wood: 5, stone: 2 }, cdur: 100, dur: 100, gatherGain: 1, unlocked: false },
     { type: 'crafts', id: 'town_center', title: 'Town Center', cnt: 0, requirements: { wood: 5, stone: 2 }, cdur: 100, dur: 100, gatherGain: 1, unlocked: false },
+    // Msts
+    { type: 'mat', id: 'thread', title: 'Thread', cnt: 0, requirements: { fiber: 10 }, unlocked: true },
     // Research
     { type: 'res', id: 'town_hall_res', title: 'Town Hall', unlocks: 'town_hall', desc: 'Learn how to build a Town Hall.', cnt: 0, requirements: { wood: 50, stone: 50 }, unlocked: true, researched: false },
     { type: 'res', id: 'town_center_res', title: 'Town Center', unlocks: 'town_center', reqResearch: [ 'town_hall' ], desc: 'Learn how to build a Town Center.', cnt: 0, requirements: { wood: 50, stone: 50 }, unlocked: false, researched: false },
@@ -59,7 +63,7 @@ export const objData = [
 export const playerData = [
     { id: 'hunger', title: 'Hunger', val: 100 },
     { id: 'thirst', title: 'Thirst', val: 100 },
-    { id: 'warmth', title: 'Warmth', val: 100 }
+    { id: 'warmth', title: 'Warmth', val: 25, init: 25 }
 ];
 
 export const messageData = [];
@@ -71,6 +75,7 @@ export const saveFields = {
     stats: ['cnt', 'unlocked'],
     resource: ['cnt', 'unlocked'],
     crafts: ['cnt', 'cdur', 'unlocked'],
+    mat: ['cnt', 'unlocked'],
     res: ['unlocked']
     // playerData: ['id', 'val']
 };

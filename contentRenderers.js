@@ -98,6 +98,32 @@ export const gatherRenderer = (scene, container, item, y, menu, parentId, conten
     };
     
     updateBar();
+    
+    const processDurability = (craftedMod) => {
+        if (craftedMod && craftedMod.mod === item.id) {
+            // Find crafted item that modifies other item
+            if (craftedMod.cnt > 0) {
+                craftedMod.cdur -= 5;
+                if (craftedMod.cdur <= 0) {
+                    craftedMod.cdur = 0;
+                    craftedMod.cnt -= 1;
+                    if (craftedMod.cnt > 0) {
+                        craftedMod.cdur = craftedMod.dur;
+                    } else {
+                        // WIP
+                        if (scene.inventoryMenu) scene.inventoryMenu.render();
+                    }
+                }
+            } else {
+                craftedMod.cdur = craftedMod.dur;
+            }
+            // Refresh
+            if (scene.inventoryMenu) {
+                    scene.inventoryMenu.updateItem(`All Inventory:${craftedMod.id}`);
+                    scene.inventoryMenu.updateItem(`Gathering:${item.gatherGain}`);
+            }
+        };
+    }
 
     // Click handling
     bg.on('pointerdown', () => {
@@ -112,6 +138,8 @@ export const gatherRenderer = (scene, container, item, y, menu, parentId, conten
             }
             // Crafts
             const craftedMod = scene.inventoryManager.items.find(i => i.mod === item.id);
+            processDurability(craftedMod);
+            /*
             if (craftedMod && craftedMod.mod === item.id) {
                 // Find crafted item that modifies other item
                 if (craftedMod.cnt > 0) {
@@ -135,6 +163,7 @@ export const gatherRenderer = (scene, container, item, y, menu, parentId, conten
                         scene.inventoryMenu.updateItem(`Gathering:${item.gatherGain}`);
                 }
             }
+            */
             
             item.progress = 0;      // reset progress
             menu.updateItem(`${parentId}:${item.title}`); // refresh UI
@@ -144,7 +173,7 @@ export const gatherRenderer = (scene, container, item, y, menu, parentId, conten
 
         updateBar();
     });
-
+    
     return {
         key: `${parentId}:${item.title}`,
         elements: [bg, label, barBg, barFill, gatherGainLabel],
@@ -293,7 +322,7 @@ export const craftRenderer = (scene, container, recipe, y, menu, parentId) => {
 
 export const inventoryRenderer = (scene, container, item, y, menu, parentId, contentHeight) => {
     // Exclude these from inventory display -- see MenuSystem
-    if (item.type === 'crafts' && item.cnt < 1) return;
+    if ((item.type === 'crafts' || item.type === 'mat') && item.cnt < 1) return;
     if (item.type === 'res') return;
     
     const boxHeight = contentHeight || menu.itemHeight;
@@ -302,6 +331,7 @@ export const inventoryRenderer = (scene, container, item, y, menu, parentId, con
     const typeColors = {
         resource: 0x223322, // green
         crafts: 0x220022,   // purple
+        mat: 0x893101,
         default: 0x555555
     };
 

@@ -121,6 +121,21 @@ export default class PlayerStatusManager {
       this.set('hunger', hunger);
       this.set('thirst', thirst);
     }
+    
+    updateWarmth(items) {
+        const warmthStat = playerData.find(i => i.id === 'warmth');
+        if (!warmthStat) return;
+    
+        let totalWarmth = 0;
+        items.forEach(item => {
+            if (item.cnt > 0 && item.gain?.warmth) {
+                totalWarmth += item.gain.warmth;
+            }
+        });
+    
+        warmthStat.val = warmthStat.init + totalWarmth;
+        this.updateValue('warmth', warmthStat.val);
+    }
 
     updateValue(id, value) {
       const bar = this.statusBars[id];

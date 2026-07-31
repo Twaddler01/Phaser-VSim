@@ -137,9 +137,11 @@ export default class InventoryManager {
 
     // Refresh menu data and rerender menu
     refreshMenu() {
-        // Gather resources
+        // Gather menu
         const resources = this.items.filter(i => i.type === 'resource' || i.type === 'stats' && i.unlocked);
-        const crafts = this.items.filter(i => i.type === 'crafts' && i.unlocked);
+        // Crafting menu
+        const crafts = this.items.filter(i => i.type === 'crafts' || i.type === 'mat' && i.unlocked);
+        // Research menu
         const res = this.items.filter(i => i.type === 'res' && i.unlocked);
         
         // Assign directly to menu data
