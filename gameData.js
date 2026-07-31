@@ -29,7 +29,7 @@ export const menuData = {
 
 // Data (menu depends on)
 export const objData = [
-      // Player stats
+    // Player stats
     { type: 'stats', id: 'food', title: 'Food', cnt: 0, max: 10, progress: 0, hps: 10, unlocked: true },
     { type: 'stats', id: 'water', title: 'Water', cnt: 0, max: 5, progress: 0, hps: 10, unlocked: true },
     // Resources
@@ -63,6 +63,8 @@ export const playerData = [
 ];
 
 export const messageData = [];
+
+export const elapsedTime = 0;
 
 // Saved data fields for objData 
 export const saveFields = {

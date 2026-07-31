@@ -3,14 +3,16 @@ import { gatherRenderer, craftRenderer, inventoryRenderer, resRenderer } from  '
 import InventoryManager from './InventoryManager.js';
 import PlayerStatusManager from './PlayerStatusManager.js';
 import MessageStatus from './MessageStatus.js';
-import { menuData, objData, playerData, messageData, saveFields } from './gameData.js';
+import { menuData, objData, playerData, messageData, elapsedTime, saveFields } from './gameData.js';
 import SaveManager from './SaveManager.js';
+import GameTimer from './GameTimer.js';
 
 // Pass the actual arrays to be saved 
 const gameData = {
     objData,
     playerData,
-    messageData
+    messageData,
+    elapsedTime: 0
 };
 
 // `000`
@@ -33,10 +35,6 @@ class MainScene extends Phaser.Scene {
         this.load.image('closed', 'assets/MenuItem_closed.png');
     }
 
-    update() {
-        //
-    }
-
     create() {
         // Autosave data to local storage
         this.saveManager = new SaveManager(
@@ -45,6 +43,8 @@ class MainScene extends Phaser.Scene {
           'saveState',
           5000
         );
+        
+        this.gameTimer = new GameTimer(gameData);
       
 //// temp
         const width = this.game.config.width;
@@ -93,13 +93,17 @@ class MainScene extends Phaser.Scene {
 
         // NEW -- No renderer
         this.playerStatusManager = new PlayerStatusManager(this, this.inventoryMenu);
-        
+
         // For messages
         this.messageStatus = new MessageStatus(this);
         
         this.debugUI(700, 10);
         
     } // create()
+
+    update(time, delta) {
+        this.gameTimer.update(delta);
+    }
 
     debugUI(debugX, debugY) {
         const debugFn = {
@@ -168,10 +172,9 @@ class MainScene extends Phaser.Scene {
             this.inventoryManager.removeItem('wood');
         });
         
-        debugFn.debugUIButton(this, 'Add: Metal', () => {
-            console.log('Added: Metal...');
-            const itemToAdd = 'metal';
-            this.inventoryManager.addItem(itemToAdd);
+        debugFn.debugUIButton(this, 'gameData.elapsedTime', () => {
+            console.log('gameData.elapsedTime');
+            console.log(this.gameTimer.getSaveData());
         });
         
         debugFn.debugUIButton(this, 'Add: Wood', () => {

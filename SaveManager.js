@@ -51,6 +51,9 @@ export default class SaveManager {
                 timestamp: stat.timestamp,
                 message: stat.message
             }));
+            
+            // Game timer
+            saveData.elapsedTime = this.rootData.elapsedTime;
 
             const json = JSON.stringify(saveData);
 
@@ -117,6 +120,11 @@ export default class SaveManager {
             
                 });
             }
+            
+            // Restore timer
+            if (savedData.elapsedTime !== undefined) {
+                this.rootData.elapsedTime = savedData.elapsedTime;
+            }
 
             console.log('[SaveManager] Loaded saved state');
 
@@ -170,6 +178,9 @@ export default class SaveManager {
                 Object.assign(stat, structuredClone(defaultStat));
             }
         });
+        
+        // Reset game timer
+        this.rootData.elapsedTime = 0;
     
         console.log('[SaveManager] Cleared saved state');
     }

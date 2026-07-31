@@ -373,11 +373,7 @@ export default class MessageStatus {
     }
 
     getTimestamp() {
-    
-        return new Date().toLocaleTimeString([], {
-            hour: 'numeric',
-            minute: '2-digit'
-        });
+        return this.scene.gameTimer.getTimestamp();
     }
     
     storeMessage(message) {
