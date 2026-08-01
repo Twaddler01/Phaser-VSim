@@ -1,12 +1,11 @@
 export default class SaveManager {
     constructor(
         rootData,
-        saveFields,
         storageKey = 'saveState',
         autoSaveInterval = 5000
     ) {
         this.rootData = rootData;
-        this.saveFields = saveFields;
+        this.saveFields = rootData.saveFields;
         this.storageKey = storageKey;
         this.intervalId = null;
         
@@ -54,6 +53,11 @@ export default class SaveManager {
             
             // Game timer
             saveData.elapsedTime = this.rootData.elapsedTime;
+
+            // Life / evolution stage
+            saveData.lifeStage = structuredClone(
+                this.rootData.lifeStage
+            );
 
             const json = JSON.stringify(saveData);
 
@@ -125,6 +129,11 @@ export default class SaveManager {
             if (savedData.elapsedTime !== undefined) {
                 this.rootData.elapsedTime = savedData.elapsedTime;
             }
+            
+            // Restore life / evolution stage
+            if (savedData.lifeStage) {
+                Object.assign(this.rootData.lifeStage, savedData.lifeStage);
+            }
 
             console.log('[SaveManager] Loaded saved state');
 
@@ -181,7 +190,9 @@ export default class SaveManager {
         
         // Reset game timer
         this.rootData.elapsedTime = 0;
-    
+
+        Object.assign(this.rootData.lifeStage, structuredClone(this.defaultData.lifeStage));
+        
         console.log('[SaveManager] Cleared saved state');
     }
 

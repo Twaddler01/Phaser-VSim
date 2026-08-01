@@ -1,0 +1,747 @@
+Absolutely. I think this could become a really fun "pre-game" version of your existing gather/craft system. Rather than EvolveScene just being a gate before MainScene, I'd make it feel like the player is building the first viable life from chemistry.
+
+The biggest design opportunity is that the mechanics can evolve along with the subject:
+
+CHEMISTRY
+   ↓
+MOLECULES
+   ↓
+SELF-REPLICATION
+   ↓
+PROTOCELL
+   ↓
+FIRST CELL
+   ↓
+MainScene / Life
+
+And you can reuse the exact same concepts you're already using:
+
+Gather → Craft → Research → Unlock → Upgrade → Auto-production → Evolution
+
+
+---
+
+1. Start with "Primordial Soup"
+
+I'd make the very first resource something like:
+
+Primordial Soup
+
+But don't make it something the player simply gathers.
+
+Instead, the first mechanic is Mixing.
+
+Maybe the initial screen says:
+
+PRIMORDIAL SOUP
+
+Nothing is alive yet.
+
+Something is happening within the mixture...
+
+Then the player has a Mix action.
+
+Mixing
+
+First 10 clicks:
+
+Mixing: 1 / 10
+
+But nothing meaningful is produced yet.
+
+Then something interesting happens.
+
+For example:
+
+10 mixes → Chemical Activity discovered
+
+Now clicks 11–20 start producing:
+
+Organic Compounds +1
+
+So the player experiences:
+
+Nothing
+   ↓
+Activity
+   ↓
+Resources
+   ↓
+Crafting
+   ↓
+Life
+
+That would be a great introduction to the progression system.
+
+
+---
+
+2. Your first resources
+
+I'd keep the first resource set very simple.
+
+Something like:
+
+Resource	Purpose
+
+Water	Fundamental environment
+Carbon	Organic structures
+Hydrogen	Molecular building
+Oxygen	Later complexity
+Nitrogen	Amino acids / nucleotides
+Phosphorus	ATP / nucleic acids
+Sulfur	Proteins / metabolism
+Organic Compounds	General early-life material
+
+
+But don't make the player manage all of those immediately.
+
+I'd unlock them gradually.
+
+Starting state
+
+Water
+Primordial Soup
+
+After mixing
+
+Water
+Organic Compounds
+
+After discovering chemistry
+
+Carbon
+Hydrogen
+Nitrogen
+
+etc.
+
+That makes the resource list itself tell the story.
+
+
+---
+
+3. Then introduce molecules
+
+This is where your existing Crafting system becomes really interesting.
+
+For example:
+
+Organic Compounds
+        +
+     Nitrogen
+        ↓
+     Amino Acids
+
+Then:
+
+Amino Acids
+     ↓
+   Protein
+
+And:
+
+Nucleotides
+     ↓
+     RNA
+
+You could have the player gradually construct the ingredients required for increasingly complex systems.
+
+
+---
+
+4. I'd make RNA the first HUGE milestone
+
+I'd actually put RNA before DNA.
+
+For game progression, this creates a really satisfying transition:
+
+Primordial Chemistry
+       ↓
+Organic molecules
+       ↓
+Nucleotides
+       ↓
+RNA
+       ↓
+Self-replication
+       ↓
+Proto-cell
+       ↓
+DNA
+       ↓
+First Cell
+
+RNA can be your first "Whoa, this is becoming life" moment.
+
+Before RNA:
+
+> You're just doing chemistry.
+
+
+
+After RNA:
+
+> You have something capable of information storage and replication.
+
+
+
+
+---
+
+5. Introduce "Replication"
+
+This could be your first automated production system.
+
+Initially:
+
+RNA
+Count: 1
+
+The player has to manually replicate it.
+
+Maybe:
+
+Replication
+[ REPLICATE ]
+
+Then after enough successful replication:
+
+Replication discovered!
+
+Now:
+
+RNA
++1 every 10 seconds
+
+You've just introduced your existing per-second timer mechanic naturally.
+
+And then the player can improve it:
+
+Basic Replication
++1 RNA / 10 sec
+
+Efficient Replication
++1 RNA / 5 sec
+
+Advanced Replication
++1 RNA / 2 sec
+
+That feels like evolution rather than an arbitrary idle-game mechanic.
+
+
+---
+
+6. Add mutation
+
+This could be one of the coolest mechanics.
+
+Once RNA is replicating automatically, introduce:
+
+Mutation
+
+Every so often, replication has a small chance to produce:
+
+Mutated RNA
+
+Then perhaps:
+
+RNA
+Mutated RNA
+
+becomes a resource.
+
+You could use mutations as a requirement for advancing.
+
+For example:
+
+RNA Replication
+        ↓
+Mutation
+        ↓
+Functional Mutation
+        ↓
+Improved Replication
+
+Now you're actually beginning to simulate evolution.
+
+
+---
+
+7. Then introduce membranes
+
+This gives you a physical "body."
+
+You could have:
+
+Lipids
+Fatty Acids
+Membrane Components
+
+Then craft:
+
+Lipids
++
+Fatty Acids
++
+Energy
+     ↓
+Proto-Membrane
+
+And eventually:
+
+RNA
++
+Membrane
++
+Proteins
++
+Energy
+     ↓
+PROTOCELL
+
+That's a huge milestone.
+
+
+---
+
+8. Mitochondria should probably come later
+
+I'd actually not make mitochondria an early craftable component.
+
+Instead, make it a later evolutionary event.
+
+Your progression could be:
+
+Proto-cell
+   ↓
+Primitive Cell
+   ↓
+Metabolism
+   ↓
+Energy production
+   ↓
+Aerobic metabolism
+   ↓
+Mitochondria
+
+And you could make mitochondria an evolutionary acquisition rather than something the player literally crafts.
+
+For example:
+
+Mitochondrial Symbiosis
+
+Requirements:
+✓ Cell membrane
+✓ RNA
+✓ DNA
+✓ Metabolism
+✓ Energy
+✓ Oxygen
+
+[ EVOLVE ]
+
+Then:
+
+Mitochondria acquired!
+
+Energy production greatly increased.
+
+That gives the player a meaningful reason to care about mitochondria.
+
+
+---
+
+9. DNA becomes a major research tree
+
+I'd make DNA a progression milestone rather than just another resource.
+
+Something like:
+
+RNA
+ ↓
+RNA replication
+ ↓
+Genetic information
+ ↓
+DNA synthesis
+ ↓
+DNA
+
+Then DNA unlocks:
+
+DNA
+├── Genetic Stability
+├── Replication
+├── Mutation Control
+├── Protein Coding
+└── Cellular Specialization
+
+And now you have your Research system from MainScene appearing in embryonic form.
+
+
+---
+
+10. Energy could be its own major resource
+
+This would tie your timer mechanics together beautifully.
+
+Early:
+
+Chemical Energy
+
+Then:
+
+ATP
+
+And eventually:
+
+ATP Production
+
+You could have:
+
+ATP: 25
+
+and various actions consume ATP:
+
+Replicate RNA     -2 ATP
+Build Protein     -5 ATP
+Copy DNA          -10 ATP
+Divide Cell       -25 ATP
+
+Then the player realizes:
+
+> "I need a way to produce energy."
+
+
+
+That's when you introduce metabolism.
+
+
+---
+
+11. The progression could look like this
+
+Here's the larger tree I'd consider:
+
+PRIMORDIAL SOUP
+                           │
+                       Mixing
+                           │
+                           ▼
+                   CHEMICAL ACTIVITY
+                           │
+             ┌─────────────┼─────────────┐
+             ▼             ▼             ▼
+          Carbon       Nitrogen       Phosphorus
+             │             │             │
+             └───────┬─────┴─────────────┘
+                     ▼
+               ORGANIC MOLECULES
+                     │
+          ┌──────────┴──────────┐
+          ▼                     ▼
+      Amino Acids          Nucleotides
+          │                     │
+          ▼                     ▼
+       Proteins                RNA
+                                │
+                                ▼
+                         RNA REPLICATION
+                                │
+                         ┌──────┴──────┐
+                         ▼             ▼
+                     Mutation      Replication
+                         │             │
+                         └──────┬──────┘
+                                ▼
+                          CELL MEMBRANE
+                                │
+                    ┌───────────┴───────────┐
+                    ▼                       ▼
+                  DNA                    ENERGY
+                    │                       │
+                    └───────────┬───────────┘
+                                ▼
+                             PROTOCELL
+                                │
+                                ▼
+                           METABOLISM
+                                │
+                                ▼
+                            ATP SYSTEM
+                                │
+                                ▼
+                          FIRST TRUE CELL
+                                │
+                                ▼
+                          >>> MainScene
+
+
+---
+
+12. Your existing menus can represent the stages
+
+This is where I think your current architecture can really shine.
+
+You could make EvolveScene use the same MenuSystem, but its menu structure changes as evolution progresses.
+
+Stage 0
+
+┌───────────────────────┐
+│ PRIMORDIAL SOUP       │
+├───────────────────────┤
+│ Mixing                │
+│                       │
+│ [ MIX ]               │
+└───────────────────────┘
+
+Stage 1
+
+┌───────────────────────┐
+│ CHEMISTRY             │
+├───────────────────────┤
+│ Gathering             │
+│ Carbon       12       │
+│ Nitrogen      8       │
+│ Hydrogen     21       │
+│                       │
+│ Crafting              │
+│ Organic Compound      │
+└───────────────────────┘
+
+Stage 2
+
+┌───────────────────────┐
+│ MOLECULAR LIFE        │
+├───────────────────────┤
+│ Gathering             │
+│ Nucleotides           │
+│ Amino Acids           │
+│                       │
+│ Crafting              │
+│ RNA                   │
+│ Protein               │
+│                       │
+│ Research              │
+│ Replication           │
+└───────────────────────┘
+
+Stage 3
+
+┌───────────────────────┐
+│ PROTOCELL             │
+├───────────────────────┤
+│ Resources             │
+│ Lipids                │
+│ ATP                   │
+│ Proteins              │
+│                       │
+│ Structures            │
+│ Membrane              │
+│ RNA Core              │
+│                       │
+│ Evolution             │
+│ Cell Division         │
+└───────────────────────┘
+
+And eventually:
+
+┌───────────────────────┐
+│ FIRST LIFE            │
+├───────────────────────┤
+│ ✓ DNA                 │
+│ ✓ RNA                 │
+│ ✓ Membrane            │
+│ ✓ Metabolism          │
+│ ✓ Replication         │
+│ ✓ Energy Production   │
+│                       │
+│ [ BEGIN LIFE ]        │
+└───────────────────────┘
+
+Then:
+
+gameData.lifeStage.stage = 1;
+
+this.saveManager.save();
+
+this.scene.start('MainScene');
+
+
+---
+
+13. I'd make stage mean "major evolutionary milestone"
+
+Don't increment it for every little thing.
+
+For example:
+
+stage: 0
+
+means:
+
+Primordial chemistry
+
+stage: 1
+
+means:
+
+Organic chemistry
+
+stage: 2
+
+means:
+
+Self-replicating molecules
+
+stage: 3
+
+means:
+
+Proto-cell
+
+stage: 4
+
+means:
+
+First true cell
+
+stage: 5
+
+could eventually be:
+
+Multicellular life
+
+And so forth.
+
+Then each stage has requirements, just like your existing research system.
+
+
+---
+
+14. This could also explain your existing MainScene
+
+I think this is particularly cool conceptually:
+
+Your current MainScene already has:
+
+Food
+Water
+Fiber
+Wood
+Stone
+Metal
+Tools
+Crafting
+Research
+
+Those don't need to be thrown away.
+
+They're simply the next evolutionary layer.
+
+So:
+
+EvolveScene
+
+CHEMISTRY
+   ↓
+RNA
+   ↓
+PROTOCELL
+   ↓
+FIRST CELL
+   ↓
+────────────────
+     MainScene
+────────────────
+   ↓
+SURVIVAL
+   ↓
+FOOD
+   ↓
+WATER
+   ↓
+TOOLS
+   ↓
+CRAFTING
+   ↓
+RESEARCH
+   ↓
+CIVILIZATION
+
+And later you could transition out of MainScene into another scene:
+
+EvolveScene
+    ↓
+Cell
+    ↓
+MainScene
+    ↓
+Organism
+    ↓
+AnimalScene
+    ↓
+Intelligence
+    ↓
+CivilizationScene
+
+That's a much bigger game than just "a gathering game."
+
+
+---
+
+One mechanic I'd definitely add: Emergence
+
+You could make the player occasionally discover things they weren't explicitly crafting.
+
+For example, after enough:
+
+Organic Compounds
++
+Heat
++
+Time
++
+Mixing
+
+you get:
+
+⚠ EMERGENCE
+
+Something unexpected has formed.
+
+New discovery:
+Amino Acids
+
+Later:
+
+⚠ EMERGENCE
+
+A molecular structure has begun copying itself.
+
+New discovery:
+Self-Replicating RNA
+
+And eventually:
+
+⚠ EMERGENCE
+
+A membrane has enclosed a replicating molecular system.
+
+New entity:
+PROTOCELL
+
+That gives you a fantastic reason for the 10-click minimum / 11–20 gathering mechanic you described.
+
+You're not just collecting resources.
+
+You're increasing chemical activity until something emerges.
+
+And that could become the fundamental mechanic of EvolveScene:
+
+> Gather enough matter → increase complexity → meet conditions → something emerges → new system becomes available.
+
+
+
+That's a very natural bridge from your existing gather/craft/research architecture into an evolution game.

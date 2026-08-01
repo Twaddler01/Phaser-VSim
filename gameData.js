@@ -17,6 +17,18 @@
  * Menu data structure defining the parent menus and their content.
  * @type {MenuData}
  */
+ 
+export const lifeStage = {
+    stage: 0
+};
+ 
+export const lifeStage_menuData = {
+  parent: [
+    { id: 'Gathering', type: 'gather', content: [] },
+    { id: 'Crafting', type: 'craft', content: [] },
+    { id: 'Research', type: 'research', content: [] }
+  ]
+};
 
 // Menu structure
 export const menuData = {
@@ -68,8 +80,6 @@ export const playerData = [
 
 export const messageData = [];
 
-export const elapsedTime = 0;
-
 // Saved data fields for objData 
 export const saveFields = {
     stats: ['cnt', 'unlocked'],
@@ -78,4 +88,14 @@ export const saveFields = {
     mat: ['cnt', 'unlocked'],
     res: ['unlocked']
     // playerData: ['id', 'val']
+};
+
+// Combined data (rootData) for saving, etc
+export const gameData = {
+    objData,
+    playerData,
+    messageData,
+    elapsedTime: 0,
+    saveFields,
+    lifeStage
 };

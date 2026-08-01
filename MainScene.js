@@ -1,9 +1,10 @@
+// MainScene.js
 import MenuSystem from './MenuSystem.js';
 import { gatherRenderer, craftRenderer, inventoryRenderer, resRenderer } from  './contentRenderers.js';
 import InventoryManager from './InventoryManager.js';
 import PlayerStatusManager from './PlayerStatusManager.js';
 import MessageStatus from './MessageStatus.js';
-import { menuData, objData, playerData, messageData, elapsedTime, saveFields } from './gameData.js';
+import { lifeStage_menuData, menuData, saveFields, gameData } from './gameData.js';
 import SaveManager from './SaveManager.js';
 import GameTimer from './GameTimer.js';
 
@@ -23,18 +24,10 @@ PlayerStatusManager
     "Here's what consuming that item does."
 */
 
-// Pass the actual arrays to be saved 
-const gameData = {
-    objData,
-    playerData,
-    messageData,
-    elapsedTime: 0
-};
-
 // `000`
 // console.log();
 
-class MainScene extends Phaser.Scene {
+export default class MainScene extends Phaser.Scene {
     constructor() {
         super('MainScene');
         // Scene shortcut to stringify
@@ -49,13 +42,9 @@ class MainScene extends Phaser.Scene {
     }
 
     create() {
-        // Autosave data to local storage
-        this.saveManager = new SaveManager(
-          gameData,
-          saveFields,
-          'saveState',
-          5000
-        );
+        // Autosave data to local storage (pulls from BootScene)
+        this.saveManager = this.registry.get('saveManager');
+
         
         this.gameTimer = new GameTimer(gameData);
       
@@ -83,7 +72,7 @@ class MainScene extends Phaser.Scene {
         
         // InventoryManager
         this.inventoryManager = new InventoryManager(this, this.menu);
-        this.inventoryManager.init(objData);
+        this.inventoryManager.init(gameData.objData);
         this.inventoryManager.refreshMenu();
         
         // Inventory Menu
@@ -110,7 +99,11 @@ class MainScene extends Phaser.Scene {
         this.playerStatusManager = new PlayerStatusManager(this, this.inventoryMenu);
 
         // For messages
-        this.messageStatus = new MessageStatus(this);
+        this.messageStatus = new MessageStatus(
+            this,
+            this.inventoryMenu.width - this.inventoryMenu.contentIndent,
+            this.gameTimer
+        );
         
         this.debugUI(700, 10);
         
@@ -202,7 +195,7 @@ class MainScene extends Phaser.Scene {
         });
         
         debugFn.debugUIButton(this, 'objData', () => {
-            console.log(JSON.stringify(objData, null, 2));
+            console.log(JSON.stringify(gameData.objData, null, 2));
         });
         
         debugFn.debugUIButton(this, 'debug save data', () => {
@@ -243,6 +236,3 @@ class MainScene extends Phaser.Scene {
     
 
 } // MainScene
-
-// Export default MainScene;
-export default MainScene;

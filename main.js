@@ -1,3 +1,5 @@
+import BootScene from "./BootScene.js";
+import EvolveScene from "./EvolveScene.js";
 import MainScene from "./MainScene.js";
 
 // Override console.log, console.warn, and console.error for exporting into a file
@@ -113,7 +115,11 @@ const { width, height } = getGameSize();
 
 const config = {
     type: Phaser.AUTO,
-    scene: [MainScene],
+    scene: [ 
+        BootScene,
+        EvolveScene, 
+        MainScene
+    ],
     scale: {
         mode: Phaser.Scale.FIT, // FIT is good for preserving aspect ratio
         autoCenter: Phaser.Scale.CENTER_BOTH, // Center the game

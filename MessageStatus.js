@@ -2,9 +2,11 @@ import { messageData } from './gameData.js';
 
 export default class MessageStatus {
 
-    constructor(scene) {
+    constructor(scene, width, gameTimer) {
 
         this.scene = scene;
+        this.width = width;
+        this.gameTimer = gameTimer;
 
         this.messages = [];
 
@@ -22,8 +24,7 @@ export default class MessageStatus {
 
     draw() {
         const width =
-            this.scene.inventoryMenu.width -
-            this.scene.inventoryMenu.contentIndent;
+            this.width;
 
         const height = 180;
 
@@ -370,7 +371,7 @@ export default class MessageStatus {
     }
 
     getTimestamp() {
-        return this.scene.gameTimer.getTimestamp();
+        return this.gameTimer.getTimestamp();
     }
     
     storeMessage(message) {
