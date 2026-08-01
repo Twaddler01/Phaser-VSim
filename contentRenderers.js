@@ -98,39 +98,23 @@ export const gatherRenderer = (scene, container, item, y, menu, parentId, conten
     };
     
     updateBar();
-    
-    const processDurability = (craftedMod) => {
-        if (craftedMod && craftedMod.mod === item.id) {
-            // Find crafted item that modifies other item
-            if (craftedMod.cnt > 0) {
-                craftedMod.cdur -= 5;
-                if (craftedMod.cdur <= 0) {
-                    craftedMod.cdur = 0;
-                    craftedMod.cnt -= 1;
-                    if (craftedMod.cnt > 0) {
-                        craftedMod.cdur = craftedMod.dur;
-                    }
-                }
-            } else {
-                craftedMod.cdur = craftedMod.dur;
-            }
-        };
-    }
 
     // Click handling
     bg.on('pointerdown', () => {
         item.progress += 1;
 
         if (item.progress >= getClicksPerItem() && item.cnt < item.max) {
-            item.cnt += getGatherGain();          // add resource
+            scene.inventoryManager.add(
+                item.id,
+                getGatherGain()
+            );  // add resource
 
             // Uses hunger/thirst
             if (scene.playerStatusManager) {
                 scene.playerStatusManager.processGather();
             }
-            // Crafts
-            const craftedMod = scene.inventoryManager.getItemByMod(item.id);
-            processDurability(craftedMod);
+            // Use gathering tool
+            scene.inventoryManager.useDurabilityByMod(item.id);
 
             item.progress = 0;      // reset progress
             menu.updateItem(`${parentId}:${item.id}`); // refresh UI
@@ -236,38 +220,18 @@ export const craftRenderer = (scene, container, recipe, y, menu, parentId) => {
 
     // Central purchase action
     const handlePurchase = () => {
-        if (!updateLabel()) return;
+        if (!scene.inventoryManager.canAfford(recipe.requirements)) return;
 
         // Deduct resources
         Object.entries(recipe.requirements).forEach(([resId, amt]) => {
-            const resItem = scene.inventoryManager.getItem(resId);
-            if (resItem) {
-                resItem.cnt = Math.max(0, resItem.cnt - amt);
-            }
+            scene.inventoryManager.remove(resId, amt);
         });
 
         // Add crafted item
-        const craftItem = scene.inventoryManager.getItem(recipe.id);
-        if (craftItem) {
-            const wasEmpty = craftItem.cnt === 0;
-        
-            craftItem.cnt = Math.min(
-                craftItem.max ?? Infinity,
-                craftItem.cnt + 1
-            );
-        
-            if (wasEmpty) {
-                craftItem.cdur = craftItem.dur;
-            }
-        }
+        scene.inventoryManager.addCraftedItem(recipe.id, 1);
         
         // Refresh UI
         updateLabel();
-        // Update craft mods
-        const modRes = scene.inventoryManager.getItem(recipe.mod);
-        if (modRes) {
-            menu.updateItem(`Gathering:${modRes.id}`);
-        }
     };
 
     bg.on('pointerdown', handlePurchase);
@@ -368,8 +332,8 @@ export const inventoryRenderer = (scene, container, item, y, menu, parentId, con
     ).setOrigin(0, 0.5);
     
     statButton.on("pointerdown", () => {
+// WIP: needs I.M. function
         item.cnt -= item.max;
-        //scene.inventoryManager.refreshMenu();
         scene.playerStatusManager.processConsume(item.id);
     });
     
@@ -452,23 +416,23 @@ export const resRenderer = (scene, container, res, y, menu, parentId, contentHei
 
     // Check & update display
     const updateLabel = () => {
-        let allMet = true;
-
-        reqLabels.forEach(({ resId, textObj }) => {
-            const amt = res.requirements[resId];
-            const resItem = scene.inventoryManager.getItem(resId);
-            const current = resItem ? resItem.cnt : 0;
-            const name = resItem ? resItem.title : '???';
-
-            textObj.setText(`${name}: ${current}/${amt}`);
-            textObj.setColor(current >= amt ? '#00ff00' : '#ffffff');
-
-            if (current < amt) {
-                allMet = false;
-            }
+        const requirements = scene.inventoryManager.getRequirementStatus(res.requirements);
+        const allMet = requirements.every(req => req.met);
+    
+        requirements.forEach((req, index) => {
+            reqLabels[index].textObj.setText(
+                `${req.title}: ${req.current}/${req.required}`
+            );
+    
+            reqLabels[index].textObj.setColor(
+                req.met ? '#00ff00' : '#ffffff'
+            );
         });
-
-        bg.setFillStyle(allMet ? 0x225522 : 0x444444);
+    
+        bg.setFillStyle(
+            allMet ? 0x225522 : 0x444444
+        );
+    
         return allMet;
     };
 
@@ -505,7 +469,7 @@ export const resRenderer = (scene, container, res, y, menu, parentId, contentHei
     // Research action
     const handleResearch = () => {
         // Can't research until requirements are met
-        if (!updateLabel()) return;
+        if (!scene.inventoryManager.canAfford(res.requirements)) return;
     
         // Mark this research as completed
         res.researched = true;

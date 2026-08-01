@@ -49,9 +49,6 @@ class MainScene extends Phaser.Scene {
     }
 
     create() {
-        // Session timer
-        this.sessionTimeElapsed = 0;
-        
         // Autosave data to local storage
         this.saveManager = new SaveManager(
           gameData,
@@ -122,7 +119,8 @@ class MainScene extends Phaser.Scene {
     update(time, delta) {
         this.gameTimer.update(delta);
         
-        this.updateDurability(delta);
+        // For real-time durability decay
+        this.inventoryManager.updateAutoDecay(delta);
     }
 
     debugUI(debugX, debugY) {
@@ -240,53 +238,10 @@ class MainScene extends Phaser.Scene {
                 'You found a Stone Axe. Its durability is beginning to decrease. You found a Stone Axe. Its durability is beginning to decrease. You found a Stone Axe. Its durability is beginning to decrease.'
             );
         });
+    }
 
-        // debug
-        //this.updateDurability();
-        
-    }
     
-    updateDurability(delta) {
-        this.sessionTimeElapsed += delta;
-    
-        if (this.sessionTimeElapsed < 1000) return;
-    
-        const durItem = gameData.objData.filter(
-            i => i.decay >= 0
-        );
-    
-        durItem.forEach(item => {
-    
-            if (item.cnt > 0 && item.cdur >= 0) {
-    
-                item.cdur -= item.decay;
-    
-                if (item.cdur <= 0) {
-                    item.cnt -= 1;
-    
-                    if (item.cnt > 0) {
-                        item.cdur = item.dur;
-                    } else {
-                        item.cdur = 0;
-                        if (this.inventoryMenu) {
-                            this.inventoryMenu.render();
-                        }
-                    }
-                }
-    
-                item.cdur = Math.round(item.cdur * 10) / 10;
-    
-                this.inventoryMenu?.updateItem(
-                    `All Inventory:${item.id}`
-                );
-            }
-        });
-    
-        // PlayerStatusManager handles the actual warmth calculation
-        this.playerStatusManager.updateWarmth(objData, gameData.playerData);
-    
-        this.sessionTimeElapsed -= 1000;
-    }
+
 } // MainScene
 
 // Export default MainScene;

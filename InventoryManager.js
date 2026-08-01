@@ -20,6 +20,12 @@ export default class InventoryManager {
         
         // Bind this for callbacks
         this._onCountChange = this._onCountChange.bind(this);
+        
+        // To batch updates, like simultaneous cnt and cdur changes
+        this._batchUpdating = false;
+        
+        // For updateAutoDecay
+        this.sessionTimeElapsed = 0;
     }
 
     _createTrackedItem(item) {
@@ -110,11 +116,23 @@ export default class InventoryManager {
     }
 
     _onDurabilityChange(item, oldCdur, newCdur) {
+        if (this._batchUpdating) return;
         if (this.scene.inventoryMenu) {
             this.scene.inventoryMenu.updateItem(
                 `All Inventory:${item.id}`
             );
         }
+    }
+
+    updateItems(callback) {
+        this._batchUpdating = true;
+    
+        callback();
+    
+        this._batchUpdating = false;
+    
+        this.refreshInventoryMenu();
+        
     }
 
     getDisplayItems() {
@@ -266,6 +284,120 @@ export default class InventoryManager {
         }
     
         this.menu.render();
+    }
+
+    add(id, amount = 1) {
+        const item = this.getItem(id);
+        if (!item) return false;
+    
+        item.cnt = Math.min(
+            item.max ?? Infinity,
+            item.cnt + amount
+        );
+    
+        return true;
+    }
+    
+    remove(id, amount = 1) {
+        const item = this.getItem(id);
+        if (!item) return false;
+    
+        item.cnt = Math.max(
+            0,
+            item.cnt - amount
+        );
+    
+        return true;
+    }
+
+    addCraftedItem(id, amount = 1) {
+        const item = this.getItem(id);
+        if (!item) return false;
+    
+        const wasEmpty = item.cnt === 0;
+    
+        item.cnt = Math.min(
+            item.max ?? Infinity,
+            item.cnt + amount
+        );
+    
+        // Initialize durability when obtaining the first one
+        if (wasEmpty && item.dur != null) {
+            item.cdur = item.dur;
+        }
+    
+        return true;
+    }
+
+    canAfford(requirements) {
+        return Object.entries(requirements || {}).every(([id, amount]) => {
+            const item = this.getItem(id);
+            return item && item.cnt >= amount;
+        });
+    }
+
+    getRequirementStatus(requirements) {
+        return Object.entries(requirements || {}).map(([id, required]) => {
+            const item = this.getItem(id);
+            const current = item?.cnt ?? 0;
+    
+            return {
+                id,
+                title: item?.title ?? '???',
+                current,
+                required,
+                met: current >= required
+            };
+        });
+    }
+
+    useDurability(id) {
+        const item = this.getItem(id);
+    
+        if (!item || item.cnt <= 0 || !item.decay) {
+            return false;
+        }
+    
+        this.updateItems(() => {
+            item.cdur = Math.max(
+                0,
+                item.cdur - item.decay
+            );
+    
+            item.cdur = Math.round(item.cdur * 10) / 10;
+    
+            if (item.cdur === 0) {
+                item.cnt--;
+    
+                if (item.cnt > 0) {
+                    item.cdur = item.dur;
+                }
+            }
+        });
+    
+        return true;
+    }
+
+    useDurabilityByMod(modId) {
+        const item = this.getItemByMod(modId);
+    
+        return item
+            ? this.useDurability(item.id)
+            : false;
+    }
+
+    updateAutoDecay(delta) {
+        this.sessionTimeElapsed += delta;
+    
+        if (this.sessionTimeElapsed < 1000) return;
+    
+        this.items
+            .filter(item => item.autoDecay === true)
+            .forEach(item => {
+                this.useDurability(item.id);
+            });
+    
+        this.sessionTimeElapsed -= 1000;
     }
 
     // Return array of raw items for saving (e.g. JSON)

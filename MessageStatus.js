@@ -21,9 +21,6 @@ export default class MessageStatus {
     // --------------------------------------------------
 
     draw() {
-
-        console.log('this.messageStatus.draw()');
-
         const width =
             this.scene.inventoryMenu.width -
             this.scene.inventoryMenu.contentIndent;

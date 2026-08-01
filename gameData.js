@@ -40,13 +40,13 @@ export const objData = [
     // Crafts
     // mod: helps gather x
     // NEW ... decsy: reduced dur per second
-    { type: 'crafts', id: 'fiber_shirt', title: 'Fiber Shirt', desc: 'Increases warmth.', gain: { warmth: 20 }, cnt: 0, requirements: { thread: 2, fiber: 5 }, cdur: 100, dur: 100, decay: 20, unlocked: true },
-    { type: 'crafts', id: 'stone_pick', title: 'Stone Pick', desc: 'Increases stone gather rate.', cnt: 0, requirements: { wood: 10, stone: 5 }, cdur: 100, dur: 100, mod: 'stone', gatherGain: 3, unlocked: true },
-    { type: 'crafts', id: 'stone_axe', title: 'Stone Axe', desc: 'Increases wood gather rate.', cnt: 0, requirements: { wood: 10, stone: 5 }, cdur: 100, dur: 100, mod: 'wood', gatherGain: 3, unlocked: true },
-    { type: 'crafts', id: 'wooden_spear', title: 'Wooden Spear', cnt: 0, requirements: { wood: 8 }, cdur: 100, dur: 100, mod: 'food', gatherGain: 3, unlocked: true },
-    { type: 'crafts', id: 'well', title: 'Well', cnt: 0, requirements: { wood: 5, stone: 20 }, cdur: 100, dur: 100, mod: 'water', gatherGain: 3, unlocked: true },
+    { type: 'crafts', id: 'fiber_shirt', title: 'Fiber Shirt', desc: 'Increases warmth.', gain: { warmth: 20 }, cnt: 0, requirements: { thread: 2, fiber: 5 }, cdur: 100, dur: 100, decay: 20, autoDecay: true, unlocked: true },
+    { type: 'crafts', id: 'stone_pick', title: 'Stone Pick', desc: 'Increases stone gather rate.', cnt: 0, requirements: { wood: 10, stone: 5 }, cdur: 100, dur: 100, mod: 'stone', decay: 5, gatherGain: 3, unlocked: true },
+    { type: 'crafts', id: 'stone_axe', title: 'Stone Axe', desc: 'Increases wood gather rate.', cnt: 0, requirements: { wood: 10, stone: 5 }, cdur: 100, dur: 100, mod: 'wood', decay: 5, gatherGain: 3, unlocked: true },
+    { type: 'crafts', id: 'wooden_spear', title: 'Wooden Spear', cnt: 0, requirements: { wood: 8 }, cdur: 100, dur: 100, mod: 'food', decay: 5, gatherGain: 3, unlocked: true },
+    { type: 'crafts', id: 'well', title: 'Well', cnt: 0, requirements: { wood: 5, stone: 20 }, cdur: 100, dur: 100, mod: 'water', decay: 5, gatherGain: 3, unlocked: true },
     { type: 'crafts', id: 'campfire', title: 'Campfire', cnt: 0, requirements: { wood: 5, stone: 2 }, cdur: 100, dur: 100, gatherGain: 1, unlocked: true },
-    { type: 'crafts', id: 'sickle', title: 'Sickle', cnt: 0, requirements: { wood: 5, stone: 2 }, cdur: 100, dur: 100, mod: 'fiber', gatherGain: 3, unlocked: false },
+    { type: 'crafts', id: 'sickle', title: 'Sickle', cnt: 0, requirements: { wood: 5, stone: 2 }, cdur: 100, dur: 100, mod: 'fiber', decay: 5, gatherGain: 3, unlocked: false },
     { type: 'crafts', id: 'town_hall', title: 'Town Hall', cnt: 0, requirements: { wood: 5, stone: 2 }, cdur: 100, dur: 100, gatherGain: 1, unlocked: false },
     { type: 'crafts', id: 'town_center', title: 'Town Center', cnt: 0, requirements: { wood: 5, stone: 2 }, cdur: 100, dur: 100, gatherGain: 1, unlocked: false },
     // Msts
