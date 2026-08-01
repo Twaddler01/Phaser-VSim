@@ -72,26 +72,46 @@ export default class MenuSystem {
             });
         
             currentY += this.itemHeight + this.verticalPadding;
-            
+
             // Only render children if content exists and is an array
             if (this.expandedParents.has(parent.id) && Array.isArray(parent.content)) {
-                const unlockedContent = parent.content.filter(c => c.unlocked || c.type === 'default');
+// needs revamp
+                const unlockedContent = parent.content.filter(
+                    item => item.unlocked || item.type === 'default'
+                );
+            
                 unlockedContent.forEach(item => {
-                    // Exclude since excluding inventory display -- see inventoryRenderer
-                    if (parent.type === 'inventory' && (item.type === 'crafts' || item.type === 'mat') && item.cnt < 1) return;
-                    if (parent.type === 'inventory' && item.type === 'res') return;
-                    const type = parent.type && this.renderers[parent.type]
-                        ? parent.type
-                        : "default";
-                    const contentHeight = parent.contentHeight ?? this.itemHeight;
-                    
-                    const rendererFn = this.renderers[type];
-                    // Renderers return { key, elements, updateFn }
-                    const { key, elements, updateFn, height } = rendererFn(this.scene, this.container, item, currentY, this, parent.id, contentHeight);
-                    
-                    this.itemRefs.set(key, { elements, updateFn, height });
-                    
-                    currentY += (height ?? parent.contentHeight ?? this.itemHeight) + this.verticalPadding;
+                    const rendererFn =
+                        this.renderers[parent.type] ||
+                        this.renderers.default;
+                    const contentHeight =
+                        parent.contentHeight ?? this.itemHeight;
+                    const result = rendererFn(
+                        this.scene,
+                        this.container,
+                        item,
+                        currentY,
+                        this,
+                        parent.id,
+                        contentHeight
+                    );
+            
+                    if (!result) return;
+            
+                    const {
+                        key,
+                        elements,
+                        updateFn,
+                        height
+                    } = result;
+            
+                    this.itemRefs.set(key, {
+                        elements,
+                        updateFn,
+                        height
+                    });
+            
+                    currentY += (height ?? contentHeight) + this.verticalPadding;
                 });
             }
         });

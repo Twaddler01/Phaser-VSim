@@ -3,7 +3,7 @@ export const gatherRenderer = (scene, container, item, y, menu, parentId, conten
     if (item.progress == null) item.progress = 0; // 0 → 1, increments per click
 
     const getGatherGain = () => {
-        const modGather = scene.inventoryManager.items.find(i => i.mod === item.id);
+        const modGather = scene.inventoryManager.getItemByMod(item.id);
         if (modGather && modGather.cnt > 0) {
             return modGather.gatherGain;
         } else {
@@ -58,16 +58,16 @@ export const gatherRenderer = (scene, container, item, y, menu, parentId, conten
     const getClicksPerItem = () => {
         let clicks = item.hps || 10;
 
-        const itemMod = scene.inventoryManager.items.find(i => i.mod === item.id);
-        if (itemMod && itemMod.cnt > 0 && item.id === itemMod.mod) {
+        const itemMod = scene.inventoryManager.getItemByMod(item.id);
+        if (itemMod && itemMod.cnt > 0) {
             clicks -= 4;
         }
         
-        if (scene.playerStatusManager && scene.playerStatusManager.starveActive) {
+        if (scene.playerStatusManager && scene.playerStatusManager.isStarving()) {
             clicks *= 1.5;
         }
         
-        if (scene.playerStatusManager && scene.playerStatusManager.dehydActive) {
+        if (scene.playerStatusManager && scene.playerStatusManager.isDehydrated()) {
             clicks *= 2;
         }
 
@@ -109,18 +109,10 @@ export const gatherRenderer = (scene, container, item, y, menu, parentId, conten
                     craftedMod.cnt -= 1;
                     if (craftedMod.cnt > 0) {
                         craftedMod.cdur = craftedMod.dur;
-                    } else {
-                        // WIP
-                        if (scene.inventoryMenu) scene.inventoryMenu.render();
                     }
                 }
             } else {
                 craftedMod.cdur = craftedMod.dur;
-            }
-            // Refresh
-            if (scene.inventoryMenu) {
-                    scene.inventoryMenu.updateItem(`All Inventory:${craftedMod.id}`);
-                    scene.inventoryMenu.updateItem(`Gathering:${item.gatherGain}`);
             }
         };
     }
@@ -137,36 +129,11 @@ export const gatherRenderer = (scene, container, item, y, menu, parentId, conten
                 scene.playerStatusManager.processGather();
             }
             // Crafts
-            const craftedMod = scene.inventoryManager.items.find(i => i.mod === item.id);
+            const craftedMod = scene.inventoryManager.getItemByMod(item.id);
             processDurability(craftedMod);
-            /*
-            if (craftedMod && craftedMod.mod === item.id) {
-                // Find crafted item that modifies other item
-                if (craftedMod.cnt > 0) {
-                    craftedMod.cdur -= 5;
-                    if (craftedMod.cdur <= 0) {
-                        craftedMod.cdur = 0;
-                        craftedMod.cnt -= 1;
-                        if (craftedMod.cnt > 0) {
-                            craftedMod.cdur = craftedMod.dur;
-                        } else {
-                            // WIP
-                            if (scene.inventoryMenu) scene.inventoryMenu.render();
-                        }
-                    }
-                } else {
-                    craftedMod.cdur = craftedMod.dur;
-                }
-                // Refresh
-                if (scene.inventoryMenu) {
-                        scene.inventoryMenu.updateItem(`All Inventory:${craftedMod.id}`);
-                        scene.inventoryMenu.updateItem(`Gathering:${item.gatherGain}`);
-                }
-            }
-            */
-            
+
             item.progress = 0;      // reset progress
-            menu.updateItem(`${parentId}:${item.title}`); // refresh UI
+            menu.updateItem(`${parentId}:${item.id}`); // refresh UI
             // Check every gather
             gatherGainLabel.setText(`+${getGatherGain()}`);
         }
@@ -175,11 +142,11 @@ export const gatherRenderer = (scene, container, item, y, menu, parentId, conten
     });
     
     return {
-        key: `${parentId}:${item.title}`,
+        key: `${parentId}:${item.id}`,
         elements: [bg, label, barBg, barFill, gatherGainLabel],
         updateFn: () => {
             updateBar();
-            label.setText(`Gather: ${item.title}`);
+            // Default value for live updates from changes
             gatherGainLabel.setText(`+${getGatherGain()}`);
         },
         height: boxHeight
@@ -251,7 +218,7 @@ export const craftRenderer = (scene, container, recipe, y, menu, parentId) => {
 
         reqLabels.forEach(({ resId, textObj }) => {
             const amt = recipe.requirements[resId];
-            const resItem = scene.inventoryManager.items.find(i => i.id === resId);
+            const resItem = scene.inventoryManager.getItem(resId);
             const current = resItem ? resItem.cnt : 0;
             const name = resItem ? resItem.title : '???';
 
@@ -273,14 +240,14 @@ export const craftRenderer = (scene, container, recipe, y, menu, parentId) => {
 
         // Deduct resources
         Object.entries(recipe.requirements).forEach(([resId, amt]) => {
-            const resItem = scene.inventoryManager.items.find(i => i.id === resId);
+            const resItem = scene.inventoryManager.getItem(resId);
             if (resItem) {
                 resItem.cnt = Math.max(0, resItem.cnt - amt);
             }
         });
 
         // Add crafted item
-        const craftItem = scene.inventoryManager.items.find(i => i.id === recipe.id);
+        const craftItem = scene.inventoryManager.getItem(recipe.id);
         if (craftItem) {
             const wasEmpty = craftItem.cnt === 0;
         
@@ -292,16 +259,14 @@ export const craftRenderer = (scene, container, recipe, y, menu, parentId) => {
             if (wasEmpty) {
                 craftItem.cdur = craftItem.dur;
             }
-        
-            if (scene.inventoryMenu) scene.inventoryMenu.render();
         }
         
         // Refresh UI
         updateLabel();
         // Update craft mods
-        const modRes = scene.inventoryManager.items.find(i => i.id === recipe.mod);
+        const modRes = scene.inventoryManager.getItem(recipe.mod);
         if (modRes) {
-            menu.updateItem(`Gathering:${modRes.title}`);
+            menu.updateItem(`Gathering:${modRes.id}`);
         }
     };
 
@@ -313,7 +278,7 @@ export const craftRenderer = (scene, container, recipe, y, menu, parentId) => {
     updateLabel();
 
     return {
-        key: `${parentId}:${recipe.title}`,
+        key: `${parentId}:${recipe.id}`,
         elements: [bg, titleLabel, descLabel, desc2Label, ...reqLabels.map(r => r.textObj)],
         updateFn: updateLabel,
         height: boxHeight
@@ -321,10 +286,6 @@ export const craftRenderer = (scene, container, recipe, y, menu, parentId) => {
 };
 
 export const inventoryRenderer = (scene, container, item, y, menu, parentId, contentHeight) => {
-    // Exclude these from inventory display -- see MenuSystem
-    if ((item.type === 'crafts' || item.type === 'mat') && item.cnt < 1) return;
-    if (item.type === 'res') return;
-    
     const boxHeight = contentHeight || menu.itemHeight;
 
     // Type-based colors
@@ -345,7 +306,9 @@ export const inventoryRenderer = (scene, container, item, y, menu, parentId, con
         .setOrigin(0)
         .setStrokeStyle(1, 0x000000);
 
-    const progress = Math.min(1, item.cnt / item.max);
+    const progress = item.max != null
+        ? Math.min(1, item.cnt / item.max)
+        : 0;
     const barBg = scene.add.rectangle(menu.contentIndent + 80, y + boxHeight / 2, 100, 12, 0x222222)
         .setOrigin(0, 0.5);
     const barFill = scene.add.rectangle(menu.contentIndent + 80, y + boxHeight / 2, 100 * progress, 12, 0x00ff00)
@@ -360,7 +323,10 @@ export const inventoryRenderer = (scene, container, item, y, menu, parentId, con
     ).setOrigin(0, 0.5);
 
     // Crafts only -- tools
-    const durability = Math.min(1, item.cdur / item.dur);
+    const durability =
+        item.dur != null
+        ? Math.min(1, item.cdur / item.dur)
+        : 0;
     const d_barBg = scene.add.rectangle(menu.contentIndent + 120, y + boxHeight / 2, 100, 12, 0x4d004d)
         .setOrigin(0, 0.5);
     d_barBg.setVisible(false);
@@ -368,11 +334,10 @@ export const inventoryRenderer = (scene, container, item, y, menu, parentId, con
         .setOrigin(0, 0.5);
     d_barFill.setVisible(false);
 
-// Crafts durability
+    // Crafts durability
     if (item.type === 'crafts') {
-        const craftItem = scene.inventoryManager.items.find(i => i.id === item.id);
-        d_barBg.setVisible(craftItem && craftItem.cnt > 0);
-        d_barFill.setVisible(craftItem && craftItem.cnt > 0);
+        d_barBg.setVisible(item.cnt > 0);
+        d_barFill.setVisible(item.cnt > 0);
     }
 
     const labelAmt = scene.add.text(
@@ -404,7 +369,7 @@ export const inventoryRenderer = (scene, container, item, y, menu, parentId, con
     
     statButton.on("pointerdown", () => {
         item.cnt -= item.max;
-        scene.inventoryManager.refreshMenu();
+        //scene.inventoryManager.refreshMenu();
         scene.playerStatusManager.processConsume(item.id);
     });
     
@@ -422,14 +387,17 @@ export const inventoryRenderer = (scene, container, item, y, menu, parentId, con
     container.add([bg, barBg, barFill, label, labelAmt, d_barBg, d_barFill, statButton, statLabel]);
 
     const updateDisplay = () => {
-        const newProgress = Math.min(1, item.cnt / item.max);
+        const newProgress = item.max != null
+            ? Math.min(1, item.cnt / item.max)
+            : 0;
         barFill.width = 100 * newProgress;
-        const newDur = Math.min(1, item.cdur / item.dur);
+        const newDur = item.dur != null
+            ? Math.min(1, item.cdur / item.dur)
+            : 0;
         d_barFill.width = 100 * newDur;
         if (item.type === 'crafts') {
-            const craftItem = scene.inventoryManager.items.find(i => i.id === item.id);
-            d_barBg.setVisible(craftItem && craftItem.cnt > 0);
-            d_barFill.setVisible(craftItem && craftItem.cnt > 0);
+            d_barBg.setVisible(item.cnt > 0);
+            d_barFill.setVisible(item.cnt > 0);
         }
         label.setText(`${item.title}`);
         labelAmt.setText(item.max != null ? `${item.cnt} / ${item.max}` : `${item.cnt}`);
@@ -488,7 +456,7 @@ export const resRenderer = (scene, container, res, y, menu, parentId, contentHei
 
         reqLabels.forEach(({ resId, textObj }) => {
             const amt = res.requirements[resId];
-            const resItem = scene.inventoryManager.items.find(i => i.id === resId);
+            const resItem = scene.inventoryManager.getItem(resId);
             const current = resItem ? resItem.cnt : 0;
             const name = resItem ? resItem.title : '???';
 
@@ -506,9 +474,7 @@ export const resRenderer = (scene, container, res, y, menu, parentId, contentHei
 
     // Check research
     const updateResearchUnlocks = () => {
-        const researchItems = scene.inventoryManager.items.filter(
-            i => i.type === 'res'
-        );
+        const researchItems = scene.inventoryManager.getResearchItems();
     
         researchItems.forEach(research => {
     
@@ -556,7 +522,7 @@ export const resRenderer = (scene, container, res, y, menu, parentId, contentHei
 
         const deductCosts = () => {
             Object.entries(res.requirements).forEach(([resId, amt]) => {
-                const resItem = scene.inventoryManager.items.find(i => i.id === resId);
+                const resItem = scene.inventoryManager.getItem(resId);
                 if (resItem) {
                     resItem.cnt = Math.max(0, resItem.cnt - amt);
                 }
@@ -574,7 +540,7 @@ export const resRenderer = (scene, container, res, y, menu, parentId, contentHei
     updateLabel();
     
     return {
-        key: `${parentId}:${res.title}`,
+        key: `${parentId}:${res.id}`,
         elements: [bg, titleLabel],
         updateFn: updateLabel,
         height: boxHeight

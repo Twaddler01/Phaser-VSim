@@ -137,6 +137,14 @@ export default class PlayerStatusManager {
         this.updateValue('warmth', warmthStat.val);
     }
 
+    isStarving() {
+        return this.starveActive;
+    }
+    
+    isDehydrated() {
+        return this.dehydActive;
+    }
+
     updateValue(id, value) {
       const bar = this.statusBars[id];
       if (!bar) return;

@@ -26,20 +26,37 @@ export default class InventoryManager {
         if (item[TRACKED]) return item;            // already decorated
         
         let _cnt = item.cnt || 0;
+        let _cdur = item.cdur ?? 0;
         const self = this;
         
         Object.defineProperty(item, 'cnt', {
             get() { return _cnt; },
             set(v) {
                 if (_cnt !== v) {
+                    const oldCnt = _cnt;
                     _cnt = v;
-                    self._onCountChange(item);
+                    self._onCountChange(item, oldCnt, v);
                 }
             },
             enumerable: true,
             configurable: true
         });
-    
+
+        Object.defineProperty(item, 'cdur', {
+            get() {
+                return _cdur;
+            },
+            set(v) {
+                if (_cdur !== v) {
+                    const oldCdur = _cdur;
+                    _cdur = v;
+                    self._onDurabilityChange(item, oldCdur, v);
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+
         Object.defineProperty(item, TRACKED, {
             value: true,
             enumerable: false,
@@ -50,9 +67,9 @@ export default class InventoryManager {
     }
     
     // Called whenever an item's count changes
-    _onCountChange(item) {
-        // Update gather menu item (title used for display key)
-        this.menu.updateItem(`Gathering:${item.title}`);
+    _onCountChange(item, oldCnt, newCnt) {
+        // Update gather menu item
+        this.menu.updateItem(`Gathering:${item.id}`);
         
         // Update all craft/research menu items that depend on this resource's id
         this.menu.data.parent
@@ -60,15 +77,76 @@ export default class InventoryManager {
             .forEach(parent => {
                 parent.content.forEach(recipe => {
                     if (recipe.requirements && recipe.requirements[item.id] !== undefined) {
-                        this.menu.updateItem(`${parent.id}:${recipe.title}`);
+                        this.menu.updateItem(`${parent.id}:${recipe.id}`);
                     }
                 });
         });
         
         // Update inventory
         if (this.scene.inventoryMenu) {
-            this.scene.inventoryMenu.updateItem(`All Inventory:${item.id}`);
+            // Item was previously invisible, but is now visible
+            const isCraftOrMat =
+                item.type === 'crafts' ||
+                item.type === 'mat';
+    
+            const becameVisible =
+                isCraftOrMat &&
+                oldCnt < 1 &&
+                newCnt >= 1;
+    
+            const becameHidden =
+                isCraftOrMat &&
+                oldCnt >= 1 &&
+                newCnt < 1;
+    
+            if (becameVisible || becameHidden) {
+                this.refreshInventoryMenu();
+            } else {
+                this.scene.inventoryMenu.updateItem(
+                    `All Inventory:${item.id}`
+                );
+            }
         }
+    }
+
+    _onDurabilityChange(item, oldCdur, newCdur) {
+        if (this.scene.inventoryMenu) {
+            this.scene.inventoryMenu.updateItem(
+                `All Inventory:${item.id}`
+            );
+        }
+    }
+
+    getDisplayItems() {
+        return this.items.filter(item => {
+            // Don't show research in inventory
+            if (item.type === 'res') return false;
+    
+            // Don't show empty crafts/materials
+            if (
+                (item.type === 'crafts' || item.type === 'mat') &&
+                item.cnt < 1
+            ) {
+                return false;
+            }
+    
+            return true;
+        });
+    }
+    
+    refreshInventoryMenu() {
+        if (!this.scene.inventoryMenu) return;
+    
+        const inventoryParent =
+            this.scene.inventoryMenu.data.parent.find(
+                p => p.id === 'All Inventory'
+            );
+    
+        if (!inventoryParent) return;
+    
+        inventoryParent.content = this.getDisplayItems();
+    
+        this.scene.inventoryMenu.render();
     }
 
     // Initialize inventory with an array of raw items
@@ -83,6 +161,10 @@ export default class InventoryManager {
     // Get a tracked item by ID
     getItem(id) {
         return this._trackedMap.get(id);
+    }
+    
+    getItemByMod(modId) {
+        return this.items.find(i => i.mod === modId);
     }
 
     addItem(id) {
@@ -135,35 +217,54 @@ export default class InventoryManager {
         }
     }
 
+    getGatherItems() {
+        return this.items.filter(
+            i =>
+                (i.type === 'resource' || i.type === 'stats') &&
+                i.unlocked
+        );
+    }
+    
+    getCraftItems() {
+        return this.items.filter(
+            i =>
+                (i.type === 'crafts' || i.type === 'mat') &&
+                i.unlocked
+        );
+    }
+    
+    getResearchItems() {
+        return this.items.filter(i => i.type === 'res');
+    }
+
     // Refresh menu data and rerender menu
     refreshMenu() {
-        // Gather menu
-        const resources = this.items.filter(i => i.type === 'resource' || i.type === 'stats' && i.unlocked);
-        // Crafting menu
-        const crafts = this.items.filter(i => i.type === 'crafts' || i.type === 'mat' && i.unlocked);
-        // Research menu
-        const res = this.items.filter(i => i.type === 'res' && i.unlocked);
-        
-        // Assign directly to menu data
         const parentData = this.menu.data.parent;
-        
-        const gatherMenu = parentData.find(p => p.id === 'Gathering');
-        const craftMenu = parentData.find(p => p.id === 'Crafting');
-        const resMenu = parentData.find(p => p.id === 'Research');
-        
+    
+        const gatherMenu = parentData.find(
+            p => p.id === 'Gathering'
+        );
+    
+        const craftMenu = parentData.find(
+            p => p.id === 'Crafting'
+        );
+    
+        const researchMenu = parentData.find(
+            p => p.id === 'Research'
+        );
+    
         if (gatherMenu) {
-            gatherMenu.content = resources;
+            gatherMenu.content = this.getGatherItems();
         }
-        
+    
         if (craftMenu) {
-            craftMenu.content = crafts;
+            craftMenu.content = this.getCraftItems();
         }
-        
-        if (resMenu) {
-          resMenu.content = res;
+    
+        if (researchMenu) {
+            researchMenu.content = this.getResearchItems();
         }
-        
-        // Now trigger menu refresh
+    
         this.menu.render();
     }
 

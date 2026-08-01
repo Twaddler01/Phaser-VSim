@@ -7,6 +7,22 @@ import { menuData, objData, playerData, messageData, elapsedTime, saveFields } f
 import SaveManager from './SaveManager.js';
 import GameTimer from './GameTimer.js';
 
+/*
+REFRACTOR UPDATES
+
+MenuSystem
+    "Give me these items and I'll render them."
+
+InventoryManager
+    "These are the items that belong in my inventory display."
+
+Renderer
+    "Here's how an inventory item looks."
+
+PlayerStatusManager
+    "Here's what consuming that item does."
+*/
+
 // Pass the actual arrays to be saved 
 const gameData = {
     objData,
@@ -17,9 +33,6 @@ const gameData = {
 
 // `000`
 // console.log();
-/*const printStr = (item) => {
-    console.log(JSON.stringify(item, null,  2));
-};*/
 
 class MainScene extends Phaser.Scene {
     constructor() {
@@ -59,42 +72,44 @@ class MainScene extends Phaser.Scene {
         this.graphics.setDepth(-1); // -1 ensures it's behind other game elements
 //
 
-        // Regulwr Menu
+        // Regular Menu
         this.menu = new MenuSystem(this, {
-          data: menuData,
-          x: 320,
-          contentIndent: 0,
-          renderers: {
-            gather: gatherRenderer,
-            craft: craftRenderer,
-            research: resRenderer
-          }
+            data: menuData,
+            x: 320,
+            contentIndent: 0,
+            renderers: {
+                gather: gatherRenderer,
+                craft: craftRenderer,
+                research: resRenderer
+            }
         });
         
-        // Tracks inventory for other elements at runtime 
+        // InventoryManager
         this.inventoryManager = new InventoryManager(this, this.menu);
         this.inventoryManager.init(objData);
         this.inventoryManager.refreshMenu();
-
-        // inventory Menu
+        
+        // Inventory Menu
         this.inventoryMenu = new MenuSystem(this, {
             x: 10,
             y: 400,
             contentIndent: 0,
             id: 'Inventory',
-            data: { 
+            data: {
                 parent: [{
                     id: 'All Inventory',
-                    type: 'inventory', // our new renderer
-                    content: this.inventoryManager.items
+                    type: 'inventory',
+                    content: []
                 }]
             },
             renderers: {
                 inventory: inventoryRenderer
             }
         });
+        
+        // Initial population of inventory
+        this.inventoryManager.refreshInventoryMenu();
 
-        // NEW -- No renderer
         this.playerStatusManager = new PlayerStatusManager(this, this.inventoryMenu);
 
         // For messages
