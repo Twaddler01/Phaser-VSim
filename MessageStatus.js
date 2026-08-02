@@ -2,11 +2,13 @@ import { messageData } from './gameData.js';
 
 export default class MessageStatus {
 
-    constructor(scene, width, gameTimer) {
+    constructor(scene, width, gameTimer, y) {
 
         this.scene = scene;
         this.width = width;
         this.gameTimer = gameTimer;
+        
+        this.y = y ?? 10;
 
         this.messages = [];
 
@@ -29,7 +31,7 @@ export default class MessageStatus {
         const height = 180;
 
         const x = 10;
-        const y = 10;
+        const y = this.y;
 
 
         // --------------------------------------------------
@@ -320,7 +322,19 @@ export default class MessageStatus {
 
         this.updateMessagePosition();
     }
-
+    
+    // --------------------------------------------------
+    // Add message after delay
+    // --------------------------------------------------
+    
+    addMessageDelayed(message, delay = 1000) {
+        this.scene.time.delayedCall(
+            delay,
+            () => {
+                this.addMessage(message);
+            }
+        );
+    }
 
     // --------------------------------------------------
     // Layout messages

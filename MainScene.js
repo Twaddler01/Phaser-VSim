@@ -45,7 +45,6 @@ export default class MainScene extends Phaser.Scene {
         // Autosave data to local storage (pulls from BootScene)
         this.saveManager = this.registry.get('saveManager');
 
-        
         this.gameTimer = new GameTimer(gameData);
       
 //// temp

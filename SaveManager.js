@@ -190,6 +190,9 @@ export default class SaveManager {
         
         // Reset game timer
         this.rootData.elapsedTime = 0;
+        
+        // Clear messages
+        this.rootData.messageData.length = 0;
 
         Object.assign(this.rootData.lifeStage, structuredClone(this.defaultData.lifeStage));
         
